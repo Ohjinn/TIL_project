@@ -1,0 +1,81 @@
+* {
+    font-family: "Stylish", sans-serif;
+}
+
+.wrap {
+    width: 1200px;
+    margin: auto;
+    padding: 15px;
+    background-color: lightgoldenrodyellow;
+    min-height: 300vh;
+    border-radius: 40px;
+}
+
+.wrapp {
+    width: 1120px;
+    margin: auto;
+    padding: 15px;
+    background-color: rgba(255, 255, 254, 1);
+    min-height: 300vh;
+    border-radius: 40px;
+}
+
+.banner {
+    width: 100%;
+    height: 460px;
+
+    background-color: white;
+    background-image: url("logo.png");
+
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+
+    cursor: pointer;
+}
+
+.weather{
+    float: none;
+    margin: auto auto;
+    font-size: 17px
+}
+
+/*.weather {*/
+/*    margin: 30px 0px 20px 0px;*/
+/*    font-size: 20px;*/
+/*}*/
+
+/*.weather_title {*/
+/*    float: left;*/
+/*    width: 60%;*/
+/*    height: 70px;*/
+/*    padding-top: 10px;*/
+/*    text-align: right;*/
+/*}*/
+
+/*.weather_temp, .weather_img {*/
+/*    float: left;*/
+/*    width: 30%;*/
+/*    height: 70px;*/
+/*    text-align: left;*/
+/*}*/
+
+.searchbar {
+    margin-left: 20%;
+    margin-right: 20%;
+    width: 60%;
+    padding: 20px;
+
+}
+
+.hotboxs {
+    display: flex;
+    width: 12rem;
+    margin: 22px;
+    padding: 5px;
+}
+
+.st {
+    margin: 5px;
+
+}
