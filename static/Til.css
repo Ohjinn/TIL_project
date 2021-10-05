@@ -40,25 +40,20 @@
     font-size: 17px
 }
 
-/*.weather {*/
-/*    margin: 30px 0px 20px 0px;*/
-/*    font-size: 20px;*/
-/*}*/
+.weather_title {
+    float: left;
+    width: 60%;
+    height: 70px;
+    text-align: right;
+}
 
-/*.weather_title {*/
-/*    float: left;*/
-/*    width: 60%;*/
-/*    height: 70px;*/
-/*    padding-top: 10px;*/
-/*    text-align: right;*/
-/*}*/
-
-/*.weather_temp, .weather_img {*/
-/*    float: left;*/
-/*    width: 30%;*/
-/*    height: 70px;*/
-/*    text-align: left;*/
-/*}*/
+.weather_temp_img {
+    float: left;
+    width: 30%;
+    height: 70px;
+    text-align: left;
+    padding-top: 10px;
+}
 
 .searchbar {
     margin-left: 20%;
