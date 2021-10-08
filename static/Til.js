@@ -57,7 +57,6 @@ function tisClick() {
 
 
 function showLocation(position) {   // 위치 정보 호출 성공시
-    console.log('날씨 함수 호출!!!')  // 이하 구문 실행 안됨
     let latitude = position.coords.latitude   // 위도
     let longitude = position.coords.longitude  // 경도
     let apiKey = '97329c7c315676010b49d9b9dc79185c';
