@@ -16,8 +16,8 @@ class Config:
 app = Flask(__name__)
 app.config.from_object(Config())
 
-# client = MongoClient("mongodb://localhost:27017/")
-client = MongoClient('mongodb://test:test@localhost', 27017)
+client = MongoClient("mongodb://localhost:27017/")
+# client = MongoClient('mongodb://test:test@localhost', 27017)
 db = client.dbTil
 
 """
@@ -33,9 +33,10 @@ def autocraw():
     bCrawling.titleCrawling()
 
 
-@scheduler.task('interval', id='autoPiccraw', seconds=3600, misfire_grace_time=900)
+@scheduler.task('interval', id='autoPiccraw', seconds=30, misfire_grace_time=900)
 def autoPiccraw():
     bCrawling.getPic()
+
 
 
 @app.route('/')
