@@ -107,14 +107,10 @@ function showError(position) {
 
 function makeVelogCard(cards){
     let tempHtml = `<div class="card hotboxs ">
-<!--                      <img class="card-img-top card-rows" height="200" src="${cards['pic']}" alt="Card image cap">-->
-                       <div class = "imgDiv" background: url(${cards['pic']});>
-                       <div class ="text">
-                        <p>${cards['introduce']}</p>
-                        </div>
-                        </div>
+                         <img class="card-img-top card-rows" height="200" src="${cards['pic']}" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">${cards['name']}</h5>
+                            <p class="arrow_box">${cards['introduce']}</p>
                             <p class="card-text">${cards['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="#" onclick="window.open('${cards['url']}', 'new')" class="btn btn-warning st">바로가기</a>
@@ -123,6 +119,8 @@ function makeVelogCard(cards){
                         </div>
                     </div>`
     $("#velog-box").append(tempHtml);
+
+
 }
 
 $('#myModal').on('show.bs.modal', function (event) {
