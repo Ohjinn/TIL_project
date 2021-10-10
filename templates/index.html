@@ -37,6 +37,13 @@
     <script defer src="https://use.fontawesome.com/releases/v5.15.2/js/all.js"
             integrity="sha384-vuFJ2JiSdUpXLKGK+tDteQZBqNlMwAjhZ3TvPaDfN9QmbPb7Q8qUpbSNapQev3YF"
             crossorigin="anonymous"></script>
+    <script>
+        $('#myModal').on('show.bs.modal', function (e) {
+            var data = $(e.relatedTarget).data('test');
+            console.log('안녕?')
+        });
+
+    </script>
 
 </head>
 <body>
@@ -75,33 +82,9 @@
             <div id="others-box" class="row">
 
             </div>
-
         </div>
-    </div>
-    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">한 줄 리뷰 작성하기</h5>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="recipient-name" class="col-form-label">작성자:</label>
-                            <input type="text" class="form-control" id="recipient-name">
-                        </div>
-                        <div class="form-group">
-                            <label for="message-text" class="col-form-label">리뷰를 달아주세요:</label>
-                            <textarea class="form-control" id="message-text"></textarea>
-                        </div>
-                    </form>
+        <div id="set_modal">
 
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
-                    <button type="button" class="btn btn-warning">작성 완료</button>
-                </div>
-            </div>
         </div>
     </div>
 </div>
