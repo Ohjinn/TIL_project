@@ -74,3 +74,21 @@
     margin: 5px;
 
 }
+
+/*마우스 오버*/
+.imgDiv {
+    height: 200px;
+}
+.text {
+    background: #000000;
+    opacity: 0;
+}
+.text p {
+    margin: auto;
+}
+.imgDiv:hover .text {
+    height: 200px;
+    opacity: 0.5 ;
+    text-align: center;
+    color: #ffffff;
+}

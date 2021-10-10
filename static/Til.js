@@ -27,11 +27,14 @@ function getCards() {
             $("#velog-box").empty();
             velogCards.forEach(function (velogCards) {
                 makeVelogCard(velogCards);
+                makeModal(velogCards);
+
             });
 
             $("#tistory-box").empty();
             tistoryCards.forEach(function (tistoryCards) {
-                makeTistoryCard(tistoryCards)
+                makeTistoryCard(tistoryCards);
+                makeModal(tistoryCards);
             });
 
         }
@@ -103,19 +106,30 @@ function showError(position) {
 
 
 function makeVelogCard(cards){
-    let tempHtml = `<div class="card hotboxs">
-                        <img class="card-img-top card-rows" height="200" src="${cards['pic']}" alt="Card image cap">
+    let tempHtml = `<div class="card hotboxs ">
+<!--                      <img class="card-img-top card-rows" height="200" src="${cards['pic']}" alt="Card image cap">-->
+                       <div class = "imgDiv" background: url(${cards['pic']});>
+                       <div class ="text">
+                        <p>${cards['introduce']}</p>
+                        </div>
+                        </div>
                         <div class="card-body">
                             <h5 class="card-title">${cards['name']}</h5>
                             <p class="card-text">${cards['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="#" onclick="window.open('${cards['url']}', 'new')" class="btn btn-warning st">바로가기</a>
-<!--                            <button type="button" data-toggle="modal" data-target="#myModal" class="btn btn-warning st">리뷰달기</button>-->
+                            <button type="button" data-toggle="modal" data-target="#${cards['name']}"  class="btn btn-warning st">리뷰달기</button>
                         </div>
                         </div>
                     </div>`
     $("#velog-box").append(tempHtml);
 }
+
+$('#myModal').on('show.bs.modal', function (event) {
+  let bookId = $(event.relatedTarget).data('test')
+    console.log(bookId)
+  // $(this).find('.modal-body input').val(bookId)
+})
 
 function makeTistoryCard(cards){
     let tempHtml = `<div class="card hotboxs">
@@ -165,16 +179,45 @@ function search() {
     });
 }
 
+function makeModal(info){
+            temp_html = `<div class="modal fade" id=${info['name']} tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">한 줄 리뷰 작성하기</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="form-group">
+                                                <label for="recipient-name" class="col-form-label">작성자:</label>
+                                                <input type="text" class="form-control" id="writer${info['name']}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="message-text" class="col-form-label">리뷰를 달아주세요:</label>
+                                                <textarea class="form-control" id="reviewcontent${info['name']}"></textarea>
+                                            </div>
+                                        </form>
+                    
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                                        <button type="button" onclick="postReview('${info['name']}')" class="btn btn-warning">작성 완료</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`
+            $("#set_modal").append(temp_html)
+        }
+
 //리뷰
-function getreview() {
-    let user = $('#user').val()
-    let review = $('#review').val()
-
-
+function postReview(owner_name) {
+    let writer = $('#writer'+owner_name).val()
+    let review_content = $('#reviewcontent'+owner_name).val()
+    console.log(owner_name, writer, review_content)
     $.ajax({
         type: "POST",
         url: "/review",
-        data: {user_give:user,review_give:review},
+        data: {owner_give:owner_name, user_give:writer, review_give:review_content},
         success: function (response) {
             alert(response["msg"]);
             window.location.reload();

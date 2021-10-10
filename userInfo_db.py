@@ -28,7 +28,7 @@ userInfo = [
     {"name": "유제협", "url": "https://velog.io/@yu_jep", "pic": ""},
     {"name": "김경중", "url": "https://velog.io/@rudwnd33", "pic": ""},
     {"name": "김대현", "url": "https://velog.io/@dhk22", "pic": ""},
-    {"name": "서지희", "url": "https://velog.io/@diheet", "pic": ""},
+    {"name": "서지희", "url": "https://velog.io/@diheet", "pic": "", "introduce": "나 자기소개!"},
     {"name": "김지은", "url": "https://writerroom.tistory.com/category", "pic": ""},
     {"name": "김선만", "url": "https://velog.io/@manijang2", "pic": ""},
     {"name": "서재환", "url": "https://velog.io/@woodstock1993", "pic": ""},

@@ -33,10 +33,10 @@ def autocraw():
     bCrawling.titleCrawling()
 
 
-@scheduler.task('interval', id='autoPiccraw', seconds=30, misfire_grace_time=900)
+
+@scheduler.task('interval', id='autoPiccraw', seconds=3600, misfire_grace_time=900)
 def autoPiccraw():
     bCrawling.getPic()
-
 
 
 @app.route('/')
@@ -77,13 +77,15 @@ def search():
 # 리뷰
 @app.route('/review', methods=['POST'])
 def modalReview():
+    owner_receive = request.form['owner_give']
     user_receive = request.form['user_give']
     review_receive = request.form['review_give']
 
     doc = {
 
-        'user': user_receive,
-        'review': review_receive
+        'owner': owner_receive,
+        'writer': user_receive,
+        'reviewcontent': review_receive
 
     }
     db.tilreview.insert_one(doc)
