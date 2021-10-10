@@ -134,10 +134,11 @@ function makeTistoryCard(cards){
                         <img class="card-img-top card-rows" height="200" src="${cards['pic']}" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">${cards['name']}</h5>
+                            <p class="arrow_box">${cards['introduce']}</p>
                             <p class="card-text">${cards['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="#" onclick="window.open('${cards['url']}', 'new')" class="btn btn-warning st">바로가기</a>
-<!--                            <button type="button" data-toggle="modal" data-target="#myModal" class="btn btn-warning st">리뷰달기</button>-->
+                            <button type="button" data-toggle="modal" data-target="#${cards['name']}"  class="btn btn-warning st">리뷰달기</button>
                         </div>
                         </div>
                     </div>`
@@ -159,10 +160,11 @@ function search() {
                         <img class="card-img-top card-rows" height="200" src="${response['pic']}" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">${response['name']}</h5>
+                             <p class="arrow_box">${cards['introduce']}</p>
                             <p class="card-text">${response['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="${response['url']}" class="btn btn-warning st">바로가기</a>
-<!--                            <button type="button" data-toggle="modal" data-target="#myModal" class="btn btn-warning st">리뷰달기</button>-->
+                            <button type="button" data-toggle="modal" data-target="#${cards['name']}"  class="btn btn-warning st">리뷰달기</button>
                         </div>
                         </div>
                     </div>
