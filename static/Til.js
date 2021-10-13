@@ -24,25 +24,25 @@ myModal.addEventListener('showns.bs.modal', function () {
 
 
 function getCards() {
-    // $.ajax({
-    //     type: "GET",
-    //     url: `/sorted`,
-    //     data: {},
-    //     success: function (response) {
-    //         velogCards = response['velogcards']
-    //         tistoryCards = response['tistorycards']
-    //         $("#velog-box").empty();
-    //         velogCards.forEach(function (velogCards) {
-    //             makeVelogCard(velogCards);
-    //         });
-    //
-    //         $("#tistory-box").empty();
-    //         tistoryCards.forEach(function (tistoryCards) {
-    //             makeTistoryCard(tistoryCards)
-    //         });
-    //
-    //     }
-    // })
+    $.ajax({
+        type: "GET",
+        url: `/sorted`,
+        data: {},
+        success: function (response) {
+            velogCards = response['velogcards']
+            tistoryCards = response['tistorycards']
+            $("#velog-box").empty();
+            velogCards.forEach(function (velogCards) {
+                makeVelogCard(velogCards);
+            });
+
+            $("#tistory-box").empty();
+            tistoryCards.forEach(function (tistoryCards) {
+                makeTistoryCard(tistoryCards)
+            });
+
+        }
+    })
 }
 
 function velClick() {
@@ -323,7 +323,7 @@ function sign_in() {
     let password = $("#input-password").val()
 
     if (username == "") {
-        $("#help-id-login").text("아이디를 입력해주세요.")
+        $("#help-id-login").text("아이디를 입력했는지 확인해주세요.")
         $("#input-username").focus()
         return;
     } else {
@@ -360,6 +360,10 @@ function sign_out() {
     $.removeCookie('mytoken', {path: '/'});
     alert('로그아웃!')
     window.location.href = "/"
+}
+
+function kakao_login(){
+    location.href = 'https://kauth.kakao.com/oauth/authorize?client_id=bc448c49046a3ad8a4f89959546084b3&response_type=code&redirect_uri=http://localhost:5000/oauth'
 }
 
 function reset() {

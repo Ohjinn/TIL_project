@@ -45,6 +45,11 @@
         {% if msg %}
             console.log('{{ msg }}')
             console.log('{{ user_info }}')
+            {% if msg == 'kakao' %}
+                alert('카카오 로그인 완료!')
+                let token = '{{ token }}'
+                $.cookie('mytoken', 'token', {path: '/'});
+            {% endif %}
         {% endif %}
     </script>
 </head>
@@ -164,7 +169,7 @@
             <!--Body-->
             <div class="modal-body mx-4">
                 <div class="md-form mb-3 input-group">
-                    <input type="email" id="input-username" class="form-control validate" style="min-width: 60%"
+                    <input type="email" id="input-username" class="form-control validate" style="min-width: 70%"
                            placeholder="아이디를 입력해주세요">
                     <div id="btn-check-dup" class="control is-hidden">
                         <button class="btn btn-warning" onclick="check_dup()">중복확인</button>
@@ -224,8 +229,8 @@
                     </div>
                     <p class="font-small dark-grey-text text-right d-flex justify-content-center mb-3 pt-2">혹은</p>
                     <div class="row my-3 d-flex justify-content-center">
-                        <input type="image" src="../static/kakao_login_medium_wide.png" data-toggle="tooltip"
-                               data-placement="top">
+                        <input type="image" src="../static/kakao_login_medium_wide.png"
+                               onclick="kakao_login()">
                     </div>
                 </div>
             </div>
