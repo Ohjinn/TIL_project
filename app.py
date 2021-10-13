@@ -62,6 +62,13 @@ def index():
     except jwt.exceptions.DecodeError:
         return render_template('index.html', msg="로그인 정보가 존재하지 않습니다.")
 
+@app.route('/review/<keyword>')
+def review(keyword):
+    print(keyword)
+    # onwer = db.tilreview.find_one({"idx":keyword}, {})
+
+    return render_template('review.html', idx=keyword)
+
 
 @app.route('/sign_in', methods=['POST'])
 def sign_in():
@@ -161,32 +168,26 @@ def search():
     return jsonify(userdb)
 
 
-# 리뷰
-@app.route('/review', methods=['POST'])
-def modalReview():
-    owner_receive = request.form['owner_give']
-    user_receive = request.form['user_give']
-    review_receive = request.form['review_give']
 
-    doc = {
-        'owner': owner_receive,
-        'writer': user_receive,
-        'reviewcontent': review_receive
+# 리뷰 띄우기
+@app.route('/memo', methods=['GET'])
+def listing():
+    idx = request.args.get("txt")
+    print(idx)
+    memos = list(db.tilreview.find({'owner':idx}, {'_id': False}))
+    return jsonify({'all_memos':memos})
 
-    }
-    db.tilreview.insert_one(doc)
-
-    return jsonify({'msg': '저장되었습니다!'})
-
-
-@app.route('/reviewTarget', methods=['POST'])
-def modaltarget():
-    target_receive = request.form['target_give']
-
-    doc = {
-        'target': target_receive
-    }
-    db.tilreview.insert_one(doc)
+@app.route('/article', methods=['POST'])
+def update_post():
+    idx = request.form.get('idx')
+    writer = request.form.get('title')
+    reviewcontent = request.form.get('content')
+    db.tilreview.insert({
+        'owner':idx,
+        'writer': writer,
+        'reviewcontent': reviewcontent
+    })
+    return {"result": "success"}
 
 
 # 카카오 로그인을 위한 인증 과정
