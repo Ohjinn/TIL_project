@@ -20,11 +20,14 @@
             integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF"
             crossorigin="anonymous"></script>
 
+
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
             integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
             crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
 
     <!-- 구글폰트 -->
     <link href="https://fonts.googleapis.com/css2?family=Poor+Story&display=swap" rel="stylesheet">
@@ -37,9 +40,55 @@
     <script defer src="https://use.fontawesome.com/releases/v5.15.2/js/all.js"
             integrity="sha384-vuFJ2JiSdUpXLKGK+tDteQZBqNlMwAjhZ3TvPaDfN9QmbPb7Q8qUpbSNapQev3YF"
             crossorigin="anonymous"></script>
+    <script>
+        $('#myModal').on('show.bs.modal', function (e) {
+            var data = $(e.relatedTarget).data('test');
+            console.log('안녕?')
+        });
 
+    </script>
+
+    <script>
+        {% if msg %}
+            console.log('{{ msg }}')
+            console.log('{{ user_info }}')
+            {% if msg == 'kakao' %}
+                alert('카카오 로그인 완료!')
+                let token = '{{ token }}'
+                $.cookie('mytoken', 'token', {path: '/'});
+            {% endif %}
+        {% endif %}
+    </script>
 </head>
 <body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
+        <a class="navbar-brand" href="#" onclick="window.location.href = '/'">TIL_project</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav">
+                {% if status %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/myPage/{{ user_info.id }}">마이페이지<span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#" onclick="sign_out()">로그아웃<span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                {% else %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#" data-toggle="modal" data-target="#loginModalId">로그인<span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+</header>
 <div class="wrap">
     <div class="wrapp">
         <!-- 로고 이미지 -->
@@ -75,35 +124,113 @@
             <div id="others-box" class="row">
 
             </div>
+        </div>
+        <div id="set_modal">
 
         </div>
     </div>
-    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">한 줄 리뷰 작성하기</h5>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="recipient-name" class="col-form-label">작성자:</label>
-                            <input type="text" class="form-control" id="recipient-name">
-                        </div>
-                        <div class="form-group">
-                            <label for="message-text" class="col-form-label">리뷰를 달아주세요:</label>
-                            <textarea class="form-control" id="message-text"></textarea>
-                        </div>
-                    </form>
+</div>
 
+<!-- login Modal -->
+<div class="modal fade" id="loginModalId" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <!--Content-->
+        <div class="modal-content form-elegant">
+            <!--Header-->
+            <div class="modal-header text-center">
+                <div>
+                    <h3 class="modal-title w-100 dark-grey-text font-weight-bold my-3" id="myModalLoginLabel">
+                        <strong>로그인</strong></h3>
+                    <h3 class="modal-title w-100 dark-grey-text font-weight-bold my-3 is-hidden"
+                        id="myModalSignupLabel">
+                        <strong>회원가입</strong></h3>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
-                    <button type="button" class="btn btn-warning">작성 완료</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!--Body-->
+            <div class="modal-body mx-4">
+                <div class="md-form mb-3 input-group">
+                    <input type="email" id="input-username" class="form-control validate" style="min-width: 70%"
+                           placeholder="아이디를 입력해주세요">
+                    <div id="btn-check-dup" class="control is-hidden">
+                        <button class="btn btn-warning" onclick="check_dup()">중복확인</button>
+                    </div>
+                    <div>
+                        <p id="help-id" class="help is-hidden" style="font-size: 12px">아이디는 2-10자의 영문, 숫자, 특수문자(._-)만 입력
+                            가능</p>
+                        <p id="help-id-login" class="help text-danger" style="font-size: 12px"></p>
+                    </div>
+                </div>
+
+                <div class="md-form pb-3">
+                    <input type="password" id="input-password" class="form-control validate" placeholder="비밀번호를 입력해주세요">
+                    <p id="help-password" class="help is-hidden" style="font-size: 12px">영문과 숫자 조합의 8-20자의 비밀번호를 설정해주세요.
+                        특수문자(!@#$%^&*)도 사용
+                        가능합니다.</p>
+                    <div id="find-password">
+                        <p class="font-small blue-text d-flex justify-content-end"><a href="#" class="blue-text ml-1">비밀번호</a>를
+                            까먹으셨나요?</p>
+                    </div>
+                </div>
+
+                <div id="div-sign-in-or-up" class="is-hidden">
+                    <div class="md-form pb-3">
+                        <input type="password" id="input-password2" class="form-control validate" placeholder="비밀번호 확인">
+                        <p id="help-password2" class="help text-danger is-hidden" style="font-size: 12px"></p>
+                    </div>
+                    <div class="md-form pb-3">
+                        <input type="text" id="name" class="form-control validate" placeholder="이름">
+                    </div>
+
+                    <div class="field patient-only" style="margin: 0 auto 8px auto">
+                        <div class="insert">
+                            <label style="inline-size: 20%" for="input4">생년월일</label>
+                            <input style="inline-size: 70%; background: white" type="date" name="birthdate" id="input4"
+                                   placeholder="- -">
+                        </div>
+                    </div>
+
+                    <div class="md-form pb-3">
+                        <input type="text" id="blog-url" class="form-control validate" placeholder="블로그 URL">
+                    </div>
+                    <nav class="level is-mobile text-center">
+                        <button class="btn btn-warning" onclick="sign_up()">
+                            회원가입
+                        </button>
+                        <button class="btn btn-warning" onclick="toggle_sign_up()">
+                            취소
+                        </button>
+                    </nav>
+                </div>
+                <div id="log-in-hide">
+                    <div class="text-center mb-3">
+                        <button type="button" class="btn blue-gradient btn-block btn-rounded z-depth-1a"
+                                onclick="sign_in()">로그인
+                        </button>
+                    </div>
+                    <p class="font-small dark-grey-text text-right d-flex justify-content-center mb-3 pt-2">혹은</p>
+                    <div class="row my-3 d-flex justify-content-center">
+                        <input type="image" src="../static/kakao_login_medium_wide.png"
+                               onclick="kakao_login()">
+                    </div>
                 </div>
             </div>
+            <!--Footer-->
+            <div id="register-hide" class="modal-footer mx-5 pt-3 mb-1">
+                <p class="font-small grey-text d-flex justify-content-end">회원이 아니시라면<a href="#"
+                                                                                       onclick="toggle_sign_up()"
+                                                                                       class="blue-text ml-1">
+                    회원가입</a></p>
+            </div>
         </div>
+        <!--/.Content-->
     </div>
+</div>
+<!-- Modal -->
+
 </div>
 </body>
 </html>
