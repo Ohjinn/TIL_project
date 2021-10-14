@@ -119,7 +119,7 @@ function makeVelogCard(cards){
                             <p class="card-text">${cards['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="#" onclick="window.open('${cards['url']}', 'new')" class="btn btn-warning st">바로가기</a>
-                            <button type="button" data-toggle="modal" data-target="#${cards['name']}"  class="btn btn-warning st">리뷰달기</button>
+                            <a href="/review/${cards['id']}" onclick="showReviews()" class="btn btn-warning st">리뷰보기</a>
                         </div>
                         </div>
                     </div>`
@@ -137,7 +137,7 @@ function makeTistoryCard(cards) {
                             <p class="card-text">${cards['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="#" onclick="window.open('${cards['url']}', 'new')" class="btn btn-warning st">바로가기</a>
-<!--                            <button type="button" data-toggle="modal" data-target="#myModal" class="btn btn-warning st">리뷰달기</button>-->
+                            <a href="/review/${cards['id']}" onclick="showReviews()" class="btn btn-warning st">리뷰보기</a>
                         </div>
                         </div>
                     </div>`

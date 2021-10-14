@@ -67,7 +67,7 @@ def review(keyword):
     print(keyword)
     # onwer = db.tilreview.find_one({"idx":keyword}, {})
 
-    return render_template('review.html', idx=keyword)
+    return render_template('review.html', id=keyword)
 
 
 @app.route('/sign_in', methods=['POST'])
@@ -172,18 +172,18 @@ def search():
 # 리뷰 띄우기
 @app.route('/memo', methods=['GET'])
 def listing():
-    idx = request.args.get("txt")
-    print(idx)
-    memos = list(db.tilreview.find({'owner':idx}, {'_id': False}))
+    id = request.args.get("txt")
+    print(id)
+    memos = list(db.tilreview.find({'owner':id}, {'_id': False}))
     return jsonify({'all_memos':memos})
 
 @app.route('/article', methods=['POST'])
 def update_post():
-    idx = request.form.get('idx')
+    id = request.form.get('id')
     writer = request.form.get('title')
     reviewcontent = request.form.get('content')
     db.tilreview.insert({
-        'owner':idx,
+        'owner':id,
         'writer': writer,
         'reviewcontent': reviewcontent
     })
