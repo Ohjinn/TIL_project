@@ -34,14 +34,12 @@ function getCards() {
             $("#velog-box").empty();
             velogCards.forEach(function (velogCards) {
                 makeVelogCard(velogCards);
-                makeModal(velogCards);
 
             });
 
             $("#tistory-box").empty();
             tistoryCards.forEach(function (tistoryCards) {
                 makeTistoryCard(tistoryCards);
-                makeModal(tistoryCards);
             });
 
         }
@@ -178,64 +176,6 @@ function search() {
     });
 }
 
-function makeModal(info){
-            temp_html = `<div class="modal fade" id=${info['name']} tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">한 줄 리뷰 작성하기</h5>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form>
-                                            <div class="form-group">
-                                                <label for="recipient-name" class="col-form-label">작성자:</label>
-                                                <input type="text" class="form-control" id="writer${info['name']}">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="message-text" class="col-form-label">리뷰를 달아주세요:</label>
-                                                <textarea class="form-control" id="reviewcontent${info['name']}"></textarea>
-                                            </div>
-                                        </form>
-                    
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
-                                        <button type="button" onclick="postReview('${info['name']}')" class="btn btn-warning">작성 완료</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`
-            $("#set_modal").append(temp_html)
-        }
-
-//리뷰
-function postReview(owner_name) {
-    let writer = $('#writer'+owner_name).val()
-    let review_content = $('#reviewcontent'+owner_name).val()
-    console.log(owner_name, writer, review_content)
-    $.ajax({
-        type: "POST",
-        url: "/review",
-        data: {owner_give:owner_name, user_give:writer, review_give:review_content},
-        success: function (response) {
-            alert(response["msg"]);
-            window.location.reload();
-
-        }
-    })
-}
-
-function getTarget(name) {
-
-    alert(name)
-    // $.ajax({
-    //     type: "POST",
-    //     url: "/review",
-    //     data: {target_give: name},
-    //     success: function (response) {
-    //     }
-    // })
-}
 
 /*
 로그인 관련 js코드
