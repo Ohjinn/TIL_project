@@ -1,8 +1,9 @@
 from pymongo import MongoClient
 
-client = MongoClient('mongodb://localhost:27017/', 27017)
-db = client.dbTil
 
+client = MongoClient("mongodb://localhost:27017/")
+# client = MongoClient('mongodb://test:test@localhost', 27017)
+db = client.dbTil
 db.userInfo.drop()
 
 userInfo = [
@@ -35,9 +36,7 @@ userInfo = [
     {"name": "윤영현", "url": "https://goodtoseeyou.tistory.com/", "pic": "","countt" : 0},
     {"name": "김우진", "url": "https://velog.io/@dnwlsrla40", "pic": ""},
     {"name": "신한국", "url": "https://codari.tistory.com/", "pic": ""},
-    {"name": "김혜린", "url": "https://khr5830.tistory.com/", "pic": ""},
-
+    {"name": "김혜린", "url": "https://khr5830.tistory.com/", "pic": ""}
 ]
-
 
 db.userInfo.insert_many(userInfo)

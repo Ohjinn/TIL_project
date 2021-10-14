@@ -3,7 +3,7 @@
 }
 
 .wrap {
-    width: 1200px;
+    width: 1210px;
     margin: auto;
     padding: 15px;
     background-color: lightgoldenrodyellow;
@@ -12,7 +12,7 @@
 }
 
 .wrapp {
-    width: 1120px;
+    width: 1180px;
     margin: auto;
     padding: 15px;
     background-color: rgba(255, 255, 254, 1);
@@ -34,7 +34,7 @@
     cursor: pointer;
 }
 
-.weather{
+.weather {
     float: none;
     margin: auto auto;
     font-size: 17px
@@ -80,6 +80,14 @@
     justify-content: center;
 }
 
+.navbar-custom {
+    background-color: #f3e260;
+}
+
+/* login modal */
+
+.is-hidden{
+    display: none;
 
 /*마우스 오버*/
 
