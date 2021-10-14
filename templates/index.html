@@ -70,10 +70,11 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">마이페이지<span class="sr-only">(current)</span></a>
-                </li>
                 {% if status %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/myPage/{{ user_info.id }}">마이페이지<span
+                                class="sr-only">(current)</span></a>
+                    </li>
                     <li class="nav-item active">
                         <a class="nav-link" href="#" onclick="sign_out()">로그아웃<span
                                 class="sr-only">(current)</span></a>
