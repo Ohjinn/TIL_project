@@ -62,6 +62,13 @@ def index():
     except jwt.exceptions.DecodeError:
         return render_template('index.html', msg="로그인 정보가 존재하지 않습니다.")
 
+@app.route('/review/<keyword>')
+def review(keyword):
+    print(keyword)
+    # onwer = db.tilreview.find_one({"idx":keyword}, {})
+
+    return render_template('review.html', id=keyword)
+
 
 @app.route('/sign_in', methods=['POST'])
 def sign_in():
@@ -160,9 +167,9 @@ def search():
     txt = request.args.get("txt")
     userdb = db.userInfo.find_one({'name': txt}, {'_id': False})
     if userdb == None:
-        return
-    else:
-        return jsonify(userdb)
+            return
+        else:
+            return jsonify(userdb)
 
 #카운트
 @app.route('/search/<txt>', methods=['PUT'])
@@ -179,6 +186,26 @@ def order():
     orderlist = list(db.userInfo.find({}, {'_id': False}).sort([("countt", -1)]))
     return jsonify({"orderlist": orderlist})
 
+# 리뷰 띄우기
+@app.route('/memo', methods=['GET'])
+def listing():
+    id = request.args.get("txt")
+    print(id)
+    memos = list(db.tilreview.find({'owner':id}, {'_id': False}))
+    return jsonify({'all_memos':memos})
+
+@app.route('/article', methods=['POST'])
+def update_post():
+    id = request.form.get('id')
+    writer = request.form.get('title')
+    reviewcontent = request.form.get('content')
+    db.tilreview.insert({
+        'owner':id,
+        'writer': writer,
+        'reviewcontent': reviewcontent
+    })
+    return {"result": "success"}
+    
 
 # 카카오 로그인을 위한 인증 과정
 @app.route('/oauth', methods=['GET'])

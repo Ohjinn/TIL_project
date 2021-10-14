@@ -135,8 +135,8 @@ function makeVelogCard(cards){
                             <p class="arrow_box">${cards['introduce']}</p>
                             <p class="card-text">${cards['url']}</p>
                             <div class="d-flex justify-content-center">
-                            <a href="#" onclick="window.open('${cards['url']}', 'new'); clickcount()" class="btn btn-warning st">바로가기</a>
-                            <button type="button" data-target="#${cards['name']}"  class="btn btn-warning st">리뷰달기</button>
+                            <a href="#" onclick="window.open('${cards['url']}', 'new')" class="btn btn-warning st">바로가기</a>
+                            <a href="/review/${cards['id']}" onclick="showReviews()" class="btn btn-warning st">리뷰보기</a>
                         </div>
                         </div>
                     </div>`
@@ -155,7 +155,7 @@ function makeTistoryCard(cards) {
                             <p class="card-text">${cards['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="#" onclick="window.open('${cards['url']}', 'new')" class="btn btn-warning st">바로가기</a>
-                            <button type="button" data-target="#${cards['name']}"  class="btn btn-warning st">리뷰달기</button>
+                            <a href="/review/${cards['id']}" onclick="showReviews()" class="btn btn-warning st">리뷰보기</a>
                         </div>
                         </div>
                     </div>`
@@ -203,7 +203,6 @@ function search() {
                     </div>
                     <button onclick="window.location.href = '/'" type="button" class="btn btn-primary ">메인으로</button>`
                 $("#flush").append(tempHtml);
-
                  var countt = response.countt + 1;
 
                 console.log(response.countt);
