@@ -170,17 +170,17 @@ def search():
 
 
 # 리뷰 띄우기
-@app.route('/memo', methods=['GET'])
+@app.route('/reviews', methods=['GET'])
 def listing():
     id = request.args.get("txt")
     print(id)
-    memos = list(db.tilreview.find({'owner':id}, {'_id': False}))
-    return jsonify({'all_memos':memos})
+    reviews = list(db.tilreview.find({'owner':id}, {'_id': False}))
+    return jsonify({'all_reviews':reviews})
 
-@app.route('/article', methods=['POST'])
-def update_post():
+@app.route('/reviews', methods=['POST'])
+def review_post():
     id = request.form.get('id')
-    writer = request.form.get('title')
+    writer = request.form.get('writer')
     reviewcontent = request.form.get('content')
     db.tilreview.insert({
         'owner':id,
