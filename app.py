@@ -40,7 +40,6 @@ def autocraw():
 
 
 
-
 @scheduler.task('interval', id='autoPiccraw', seconds=3600, misfire_grace_time=900)
 def autopiccraw():
     bCrawling.getpic()
@@ -155,39 +154,30 @@ def sorting():
 
 
 # 검색
+# 일부러 if문에서 널값 조회 후 널값일시 쓰레기값으로 반환
 @app.route('/search', methods=['GET'])
 def search():
     txt = request.args.get("txt")
     userdb = db.userInfo.find_one({'name': txt}, {'_id': False})
-    return jsonify(userdb)
+    if userdb == None:
+        return
+    else:
+        return jsonify(userdb)
+
+#카운트
+@app.route('/search/<txt>', methods=['PUT'])
+def addcount(txt):
+    db.userInfo.update_one({'name': txt}, {'$inc': {'countt': 1}})
+    article = db.userInfo.find_one({'name': txt}, {'_id': False})
+    return (article)
 
 
-# 리뷰
-@app.route('/review', methods=['POST'])
-def modalReview():
-    owner_receive = request.form['owner_give']
-    user_receive = request.form['user_give']
-    review_receive = request.form['review_give']
 
-    doc = {
-        'owner': owner_receive,
-        'writer': user_receive,
-        'reviewcontent': review_receive
-
-    }
-    db.tilreview.insert_one(doc)
-
-    return jsonify({'msg': '저장되었습니다!'})
-
-
-@app.route('/reviewTarget', methods=['POST'])
-def modaltarget():
-    target_receive = request.form['target_give']
-
-    doc = {
-        'target': target_receive
-    }
-    db.tilreview.insert_one(doc)
+#countt 내림차순
+@app.route('/order', methods=['GET'])
+def order():
+    orderlist = list(db.userInfo.find({}, {'_id': False}).sort([("countt", -1)]))
+    return jsonify({"orderlist": orderlist})
 
 
 # 카카오 로그인을 위한 인증 과정
