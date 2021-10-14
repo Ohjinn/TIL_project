@@ -1,9 +1,10 @@
 import app
 
-def getPic():
+def getpic():
     users = list(app.db.userInfo.find({}, {'_id': False}))
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 '
+                      '(KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
 
     for one in users:
         name = one['name']
@@ -19,13 +20,17 @@ def getPic():
 
         app.db.userInfo.update_one({'name': name}, {'$set': {'pic': '../static/images/' + name + '.jpg'}})
 
+
 """
 웹 크롤링을 위한 컨트롤러. 일정시간마다 실행되게 하는 구현 필
 """
-def titleCrawling():
-    users = list(app.db.userInfo.find({}, {'_id': False}))
+
+
+def titlecrawling():
+    users = list(app.db.userInfo.find({'url':{'$exists': True}}, {'_id': False}))
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36'
+                      ' (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
     }
 
     newlist = []
@@ -34,7 +39,7 @@ def titleCrawling():
         tempurl = x['url']
 
         # 벨로그 크롤링
-        if "velog" in tempurl:
+        if "velog.io" in tempurl:
             response = app.requests.get(tempurl)
             html = response.text
             soup = app.BeautifulSoup(html, 'html.parser')
@@ -55,7 +60,7 @@ def titleCrawling():
                 newlist.append({'name': tempname, 'title': title.text})
 
         # 티스토리 크롤링
-        if "tistory" in tempurl:
+        if "tistory.com" in tempurl:
             response = app.requests.get(tempurl)
             html = response.text
             soup = app.BeautifulSoup(html, 'html.parser')

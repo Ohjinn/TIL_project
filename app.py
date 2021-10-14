@@ -34,15 +34,16 @@ scheduler.init_app(app)
 scheduler.start()
 
 
-@scheduler.task('interval', id='autocraw', seconds=900, misfire_grace_time=900)
+@scheduler.task('interval', id='autocraw', seconds=30, misfire_grace_time=900)
 def autocraw():
-    bCrawling.titleCrawling()
+    bCrawling.titlecrawling()
+
 
 
 
 @scheduler.task('interval', id='autoPiccraw', seconds=3600, misfire_grace_time=900)
-def autoPiccraw():
-    bCrawling.getPic()
+def autopiccraw():
+    bCrawling.getpic()
 
 
 @app.route('/')
@@ -52,7 +53,7 @@ def index():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         print(payload['id'])
-        user_info = db.userInfo.find_one({"id": payload["id"]})
+        user_info = db.userInfo.find_one({'id': payload['id']})
         status = (user_info != None)
         print('status : ', status)
         print('user_info : ', user_info)
@@ -273,6 +274,7 @@ def update_profile():
         return jsonify({"result": "success"})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("index"))
+
 
 
 if __name__ == "__main__":
