@@ -41,6 +41,8 @@ function getCards() {
                 makeTistoryCard(tistoryCards)
             });
 
+            console.log(velogCards)
+            console.log(tistoryCards)
         }
     })
 }

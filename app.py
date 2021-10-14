@@ -47,14 +47,10 @@ def autopiccraw():
 @app.route('/')
 def index():
     token_receive = request.cookies.get('mytoken')
-    print(token_receive)
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        print(payload['id'])
         user_info = db.userInfo.find_one({'id': payload['id']})
         status = (user_info != None)
-        print('status : ', status)
-        print('user_info : ', user_info)
         return render_template('index.html', user_info=user_info, status=status)
     except jwt.ExpiredSignatureError:
         return render_template('index.html', msg="로그인 시간이 만료되었습니다.")
@@ -131,7 +127,6 @@ def sign_up():
 def check_dup():
     username_receive = request.form['username_give']
     exists = bool(db.userInfo.find_one({"id": username_receive}))
-    # print(value_receive, type_receive, exists)
     return jsonify({'result': 'success', 'exists': exists})
 
 
