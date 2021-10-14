@@ -161,13 +161,30 @@ def sorting():
 
 
 # 검색
+# 일부러 if문에서 널값 조회 후 널값일시 쓰레기값으로 반환
 @app.route('/search', methods=['GET'])
 def search():
     txt = request.args.get("txt")
     userdb = db.userInfo.find_one({'name': txt}, {'_id': False})
-    return jsonify(userdb)
+    if userdb == None:
+            return
+        else:
+            return jsonify(userdb)
+
+#카운트
+@app.route('/search/<txt>', methods=['PUT'])
+def addcount(txt):
+    db.userInfo.update_one({'name': txt}, {'$inc': {'countt': 1}})
+    article = db.userInfo.find_one({'name': txt}, {'_id': False})
+    return (article)
 
 
+
+#countt 내림차순
+@app.route('/order', methods=['GET'])
+def order():
+    orderlist = list(db.userInfo.find({}, {'_id': False}).sort([("countt", -1)]))
+    return jsonify({"orderlist": orderlist})
 
 # 리뷰 띄우기
 @app.route('/memo', methods=['GET'])
@@ -188,7 +205,7 @@ def update_post():
         'reviewcontent': reviewcontent
     })
     return {"result": "success"}
-
+    
 
 # 카카오 로그인을 위한 인증 과정
 @app.route('/oauth', methods=['GET'])
@@ -226,6 +243,55 @@ def oauthlogin():
         return render_template('index.html', status='true', msg="kakao", token=token)
     else:
         return jsonify({'msg': '회원가입에 오류가 생겼습니다. 다시 시도해주세요'})
+
+
+@app.route('/myPage/<id>')
+def myPage(id):
+    print(id)
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.userInfo.find_one({"id": payload["id"]})
+        # user_info = db.userInfo.find_one({"id": ["id"]})
+        status = (user_info != "")
+        return render_template('myPage.html', user_info=user_info, status=status)
+    except jwt.ExpiredSignatureError:
+        return render_template('myPage.html', msg="로그인 시간이 만료되었습니다.")
+    except jwt.exceptions.DecodeError:
+        return render_template('myPage.html', msg="로그인 정보가 존재하지 않습니다.")
+    # user_info = db.userInfo.find_one({"username": username}, {"_id": False})
+    # user_info = db.userInfo.find_one({}, {"_id": False})
+    #     print(user_info)
+    # return render_template('myPage.html', user_info=user_info)
+
+
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    print('update_profile API active!')
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.userInfo.find_one({"id": payload["id"]})
+        status = (user_info != "")
+
+        password_receive = request.form['password_give']
+        birth_receive = request.form['birth_give']
+        url_receive = request.form['url_give']
+        password_hash = hashlib.sha256(password_receive.encode('utf-8')).hexdigest()
+
+        print(password_receive)
+        new_doc = {
+            "pw": password_hash,
+            "birth": birth_receive,
+            "url": url_receive
+        }
+
+        db.userInfo.update_one({'id': payload['id']}, {'$set': new_doc})
+        # db.userInfo.update_one({'id': 'sparta'}, {'$set': new_doc})
+        return jsonify({"result": "success"})
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return redirect(url_for("index"))
+
 
 
 if __name__ == "__main__":
