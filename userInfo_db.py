@@ -40,7 +40,4 @@ userInfo = [
 
 ]
 
-
-
-
 db.userInfo.insert_many(userInfo)

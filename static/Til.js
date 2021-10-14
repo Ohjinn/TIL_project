@@ -1,4 +1,26 @@
 $(document).ready(function () {
+
+        $.ajax({
+        type: "GET",
+        url: '/order',
+        data: {},
+        success: function (order) {
+            $("#rank").empty();
+            let Olist = order["orderlist"];
+            console.log(Olist)
+            for (let i = 0; i < 3; i++) {
+    let tempHtml = ` <tr>
+                      <td>${i + 1} . </td>
+                      <td>${Olist[i]['name']}</td>
+                      <td>님</td>
+                      </tr> `;
+    $("#orderrank").append(tempHtml);
+            }
+        }, error: function () {
+            alert("오류")
+        }
+    });
+
     getCards();
     showLocation();
 
@@ -16,11 +38,6 @@ window.addEventListener('load', () => {
     }
 })
 
-var myModal = document.getElementById('myModal')
-
-myModal.addEventListener('showns.bs.modal', function () {
-    myModal.focus()
-})
 
 
 function getCards() {
@@ -134,6 +151,7 @@ function makeTistoryCard(cards) {
                         <img class="card-img-top card-rows" height="200" src="${cards['pic']}" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">${cards['name']}</h5>
+                            <p class="arrow_box">${cards['introduce']}</p>
                             <p class="card-text">${cards['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="#" onclick="window.open('${cards['url']}', 'new')" class="btn btn-warning st">바로가기</a>
@@ -144,34 +162,53 @@ function makeTistoryCard(cards) {
     $("#tistory-box").append(tempHtml);
 }
 
+
+
+
 //검색
 function search() {
     let txt = $("#searchtxt").val()
+
+    $.ajax({
+        type:"PUT",
+        url: "/search/" + txt,
+        data:{},
+        success: function (inc){
+            console.log(inc)
+        }
+    })
     $.ajax({
         type: "GET",
         url: "/search?txt=" + txt,
         data: {},
         success: function (response) {
             $("#flush").empty();
-            let tempHtml = ``
-            if (txt == response.name) {
-                let tempHtml = `<div class="card hotboxs">
+            console.log(response.name, txt);
+            console.log(response.introduce);
+            if (!response) {
+                 alert ("올바른 값을 넣어주세요")
+            }
+            else {
+                 let tempHtml = `<div class="card hotboxs">
                         <img class="card-img-top card-rows" height="200" src="${response['pic']}" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">${response['name']}</h5>
+                             <p class="arrow_box">${response['introduce']}</p>
                             <p class="card-text">${response['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="${response['url']}" class="btn btn-warning st">바로가기</a>
-<!--                            <button type="button" data-toggle="modal" data-target="#myModal" class="btn btn-warning st">리뷰달기</button>-->
+                            <button type="button" data-toggle="modal" data-target="#${response['name']}"  class="btn btn-warning st">리뷰달기</button>
                         </div>
                         </div>
                     </div>
                     <button onclick="window.location.href = '/'" type="button" class="btn btn-primary ">메인으로</button>`
                 $("#flush").append(tempHtml);
-            } else {
-                let tempHtml = `<button onclick="window.location.href = '/'" type="button" class="btn btn-primary">메인으로</button>`
-                $("#flush").append(tempHtml);
+                 var countt = response.countt + 1;
+
+                console.log(response.countt);
             }
+        }, error: function onError (){
+            alert ("올바른 값을 넣어주세요");
         }
     });
 }

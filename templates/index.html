@@ -70,10 +70,11 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">마이페이지<span class="sr-only">(current)</span></a>
-                </li>
                 {% if status %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/myPage/{{ user_info.id }}">마이페이지<span
+                                class="sr-only">(current)</span></a>
+                    </li>
                     <li class="nav-item active">
                         <a class="nav-link" href="#" onclick="sign_out()">로그아웃<span
                                 class="sr-only">(current)</span></a>
@@ -107,8 +108,17 @@
             <div class="input-group-append">
                 <button onclick="search()" id="searchButton" class="btn btn-warning" type="submit">검색</button>
             </div>
-
         </div>
+
+        <!--랭킹-->
+        <div>
+        <table class="rankwrap">
+            <tbody id ="orderrank">
+
+            </tbody>
+
+        </table>
+            </div>
         <!-- 블로그 카드 띄우기 -->
         <div id="flush">
             <div onclick="velClick()" type="button" class="btn btn-info btn-lg" style="margin: 10px;">Velog</div>
@@ -233,3 +243,4 @@
 </div>
 </body>
 </html>
+
