@@ -3,6 +3,7 @@ import time
 import sys
 import urllib
 import jwt
+import os
 import hashlib
 import bCrawling
 from flask_cors import CORS
@@ -22,10 +23,12 @@ class Config:
 application = Flask(__name__)
 cors = CORS(application, resources={r"/*": {"origins": "*"}})
 application.config.from_object(Config())
-SECRET_KEY = 'SPARTA'
 
-client = MongoClient("mongodb://localhost:27017/")
+# client = MongoClient("mongodb://localhost:27017/")
 # client = MongoClient('mongodb://test:test@localhost', 27017)
+client = MongoClient(os.environ.get("MONGO_DB_PATH"))
+SECRET_KEY = os.environ.get("SECRET_KEY")
+KAKAO_CODE = os.environ.get("KAKAO_CODE")
 db = client.dbTil
 
 """
@@ -213,7 +216,7 @@ def oauthlogin():
     code = request.args.get("code")
 
     # 그 코드를 이용해 서버에 토큰을 요청해야 합니다. 아래는 POST 요청을 위한 header와 body입니다.
-    client_id = 'bc448c49046a3ad8a4f89959546084b3'
+    client_id = KAKAO_CODE
     redirect_uri = 'http://localhost:5000/oauth'
     token_url = "https://kauth.kakao.com/oauth/token"
     token_headers = {
