@@ -36,6 +36,7 @@ scheduler.start()
 
 @scheduler.task('interval', id='autocraw', seconds=30, misfire_grace_time=900)
 def autocraw():
+    print('running')
     bCrawling.titlecrawling()
 
 
@@ -57,6 +58,7 @@ def index():
         return render_template('index.html', msg="로그인 시간이 만료되었습니다.")
     except jwt.exceptions.DecodeError:
         return render_template('index.html', msg="로그인 정보가 존재하지 않습니다.")
+
 
 @app.route('/review/<keyword>')
 def review(keyword):
@@ -85,6 +87,7 @@ def sign_in():
     else:
         return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
 
+
 def kakao_sign_in(infos):
     kakao_pw = 'kakao'
     kakao_id = infos['id']
@@ -101,13 +104,15 @@ def kakao_sign_in(infos):
 
     # 이미 회원이라면 토큰을 발급해서 로그인
     if db.userInfo.find_one({'id': kakao_id, 'pw': kakao_password}) is not None:
+        user_info = db.userInfo.find_one({'id': kakao_id})
         payload = {
             'id': kakao_id,
             'pw': kakao_password,
             'name': kakao_nickname
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-        return token
+        return token, user_info
+
 
 @app.route('/sign_up/save', methods=['POST'])
 def sign_up():
@@ -162,11 +167,12 @@ def search():
     txt = request.args.get("txt")
     userdb = db.userInfo.find_one({'name': txt}, {'_id': False})
     if userdb == None:
-            return
-        else:
-            return jsonify(userdb)
+        return
+    else:
+        return jsonify(userdb)
 
-#카운트
+
+# 카운트
 @app.route('/search/<txt>', methods=['PUT'])
 def addcount(txt):
     db.userInfo.update_one({'name': txt}, {'$inc': {'countt': 1}})
@@ -174,12 +180,12 @@ def addcount(txt):
     return (article)
 
 
-
-#countt 내림차순
+# countt 내림차순
 @app.route('/order', methods=['GET'])
 def order():
     orderlist = list(db.userInfo.find({}, {'_id': False}).sort([("countt", -1)]))
     return jsonify({"orderlist": orderlist})
+
 
 # 리뷰 띄우기
 @app.route('/memo', methods=['GET'])
@@ -189,9 +195,11 @@ def listing():
     memos = list(db.tilreview.find({'owner':id}, {'_id': False}))
     return jsonify({'all_memos':memos})
 
+
 @app.route('/article', methods=['POST'])
 def update_post():
     id = request.form.get('id')
+    print(id)
     writer = request.form.get('title')
     reviewcontent = request.form.get('content')
     db.tilreview.insert({
@@ -235,6 +243,8 @@ def oauthlogin():
     infos = info_response.json()
     if info_response.status_code == 200:
         token = kakao_sign_in(infos)
+        token = token[0]
+        user_info = token[1]
         return render_template('index.html', status='true', msg="kakao", token=token)
     else:
         return jsonify({'msg': '회원가입에 오류가 생겼습니다. 다시 시도해주세요'})
@@ -286,7 +296,6 @@ def update_profile():
         return jsonify({"result": "success"})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("index"))
-
 
 
 if __name__ == "__main__":
