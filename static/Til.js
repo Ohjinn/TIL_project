@@ -377,7 +377,7 @@ function sign_out() {
 
 
 function kakao_login() {
-    location.href = 'https://kauth.kakao.com/oauth/authorize?client_id=bc448c49046a3ad8a4f89959546084b3&response_type=code&redirect_uri=http://localhost:5000/oauth'
+    location.href = 'https://kauth.kakao.com/oauth/authorize?client_id=bc448c49046a3ad8a4f89959546084b3&response_type=code&redirect_uri=https://ohjinn.shop/oauth'
 }
 
 
