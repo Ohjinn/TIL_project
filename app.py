@@ -93,6 +93,8 @@ def kakao_sign_in(infos):
     kakao_id = infos['id']
     kakao_nickname = infos['properties']['nickname']
     kakao_password = hashlib.sha256(kakao_pw.encode('utf-8')).hexdigest()
+    kakao_url = " "
+    kakao_birth = " "
     # 만약 회원이 아니면 회원가입
     if db.userInfo.find_one({'id': kakao_id, 'pw': kakao_password}) is None:
         doc = {
@@ -188,22 +190,21 @@ def order():
 
 
 # 리뷰 띄우기
-@app.route('/memo', methods=['GET'])
+@app.route('/reviews', methods=['GET'])
 def listing():
     id = request.args.get("txt")
     print(id)
-    memos = list(db.tilreview.find({'owner':id}, {'_id': False}))
-    return jsonify({'all_memos':memos})
+    reviews = list(db.tilreview.find({'owner':id}, {'_id': False}))
+    return jsonify({'all_reviews':reviews})
 
 
-@app.route('/article', methods=['POST'])
-def update_post():
+@app.route('/reviews', methods=['POST'])
+def review_post():
     id = request.form.get('id')
-    print(id)
-    writer = request.form.get('title')
+    writer = request.form.get('writer')
     reviewcontent = request.form.get('content')
     db.tilreview.insert({
-        'owner':id,
+        'owner': id,
         'writer': writer,
         'reviewcontent': reviewcontent
     })
