@@ -5,7 +5,7 @@ import urllib
 import jwt
 import hashlib
 import bCrawling
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for, make_response
 from pymongo import MongoClient
 from werkzeug.utils import secure_filename
 from bs4 import BeautifulSoup
@@ -34,7 +34,7 @@ scheduler.init_app(app)
 scheduler.start()
 
 
-@scheduler.task('interval', id='autocraw', seconds=30, misfire_grace_time=900)
+@scheduler.task('interval', id='autocraw', seconds=900, misfire_grace_time=900)
 def autocraw():
     print('running')
     bCrawling.titlecrawling()
@@ -52,7 +52,8 @@ def index():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.userInfo.find_one({'id': payload['id']})
-        status = (user_info != None)
+        status = (user_info is not None)
+        print(user_info)
         return render_template('index.html', user_info=user_info, status=status)
     except jwt.ExpiredSignatureError:
         return render_template('index.html', msg="로그인 시간이 만료되었습니다.")
@@ -244,15 +245,15 @@ def oauthlogin():
     infos = info_response.json()
     if info_response.status_code == 200:
         token = kakao_sign_in(infos)
-        token = token[0]
-        user_info = token[1]
-        return render_template('index.html', status='true', msg="kakao", token=token)
+        response = make_response(redirect(url_for("index")))
+        response.set_cookie(key='mytoken', value=token[0])
+        return response
     else:
         return jsonify({'msg': '회원가입에 오류가 생겼습니다. 다시 시도해주세요'})
 
 
 @app.route('/myPage/<id>')
-def myPage(id):
+def my_page(id):
     print(id)
     token_receive = request.cookies.get('mytoken')
     try:

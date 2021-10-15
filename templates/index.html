@@ -51,7 +51,7 @@
     <script>
         {% if msg %}
             console.log('{{ msg }}')
-            console.log('{{ user_info }}')
+            console.log({{ user_info }})
             {% if msg == 'kakao' %}
                 alert('카카오 로그인 완료!')
                 let token = '{{ token }}'
@@ -72,7 +72,7 @@
             <ul class="navbar-nav">
                 {% if status %}
                     <li class="nav-item active">
-                        <a class="nav-link" href="/myPage/">마이페이지<span
+                        <a class="nav-link" href="/myPage/{{ user_info.id }}">마이페이지<span
                                 class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item active">

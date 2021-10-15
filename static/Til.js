@@ -1,6 +1,6 @@
 $(document).ready(function () {
 
-        $.ajax({
+    $.ajax({
         type: "GET",
         url: '/order',
         data: {},
@@ -9,12 +9,12 @@ $(document).ready(function () {
             let Olist = order["orderlist"];
             console.log(Olist)
             for (let i = 0; i < 3; i++) {
-    let tempHtml = ` <tr>
+                let tempHtml = ` <tr>
                       <td>${i + 1} . </td>
                       <td>${Olist[i]['name']}</td>
                       <td>님</td>
                       </tr> `;
-    $("#orderrank").append(tempHtml);
+                $("#orderrank").append(tempHtml);
             }
         }, error: function () {
             alert("오류")
@@ -128,7 +128,7 @@ function showError(position) {
 }
 
 
-function makeVelogCard(cards){
+function makeVelogCard(cards) {
     let tempHtml = `<div class="card hotboxs">
                          <img class="card-img-top card-rows" height="200" src="${cards['pic']}" alt="Card image cap">
                         <div class="card-body">
@@ -167,10 +167,10 @@ function search() {
     let txt = $("#searchtxt").val()
 
     $.ajax({
-        type:"PUT",
+        type: "PUT",
         url: "/search/" + txt,
-        data:{},
-        success: function (inc){
+        data: {},
+        success: function (inc) {
             console.log(inc)
         }
     })
@@ -183,10 +183,9 @@ function search() {
             console.log(response.name, txt);
             console.log(response.introduce);
             if (!response) {
-                 alert ("올바른 값을 넣어주세요")
-            }
-            else {
-                 let tempHtml = `<div class="card hotboxs">
+                alert("올바른 값을 넣어주세요")
+            } else {
+                let tempHtml = `<div class="card hotboxs">
                         <img class="card-img-top card-rows" height="200" src="${response['pic']}" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">${response['name']}</h5>
@@ -200,12 +199,12 @@ function search() {
                     </div>
                     <button onclick="window.location.href = '/'" type="button" class="btn btn-primary ">메인으로</button>`
                 $("#flush").append(tempHtml);
-                 var countt = response.countt + 1;
+                var countt = response.countt + 1;
 
                 console.log(response.countt);
             }
-        }, error: function onError (){
-            alert ("올바른 값을 넣어주세요");
+        }, error: function onError() {
+            alert("올바른 값을 넣어주세요");
         }
     });
 }
@@ -378,7 +377,7 @@ function sign_out() {
 }
 
 
-function kakao_login(){
+function kakao_login() {
     location.href = 'https://kauth.kakao.com/oauth/authorize?client_id=bc448c49046a3ad8a4f89959546084b3&response_type=code&redirect_uri=http://localhost:5000/oauth'
 }
 
