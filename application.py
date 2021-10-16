@@ -216,15 +216,14 @@ def oauthlogin():
     code = request.args.get("code")
 
     # 그 코드를 이용해 서버에 토큰을 요청해야 합니다. 아래는 POST 요청을 위한 header와 body입니다.
-    client_id = KAKAO_CODE
-    redirect_uri = 'https://ohjinn.shop:5000/oauth'
+    redirect_uri = 'https://ohjinn.shop/oauth'
     token_url = "https://kauth.kakao.com/oauth/token"
     token_headers = {
         'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
     }
     data = {
         'grant_type': 'authorization_code',
-        'client_id': client_id,
+        'client_id': KAKAO_CODE,
         'redirect_uri': redirect_uri,
         'code': code
     }
