@@ -1,6 +1,6 @@
 $(document).ready(function () {
 
-        $.ajax({
+    $.ajax({
         type: "GET",
         url: '/order',
         data: {},
@@ -9,12 +9,12 @@ $(document).ready(function () {
             let Olist = order["orderlist"];
             console.log(Olist)
             for (let i = 0; i < 3; i++) {
-    let tempHtml = ` <tr>
+                let tempHtml = ` <tr>
                       <td>${i + 1} . </td>
                       <td>${Olist[i]['name']}</td>
                       <td>님</td>
                       </tr> `;
-    $("#orderrank").append(tempHtml);
+                $("#orderrank").append(tempHtml);
             }
         }, error: function () {
             alert("오류")
@@ -32,12 +32,12 @@ $(document).ready(function () {
     })
 });
 
+
 window.addEventListener('load', () => {
     if (window.navigator.geolocation) {
         window.navigator.geolocation.getCurrentPosition(showLocation, showError)
     }
 })
-
 
 
 function getCards() {
@@ -51,17 +51,17 @@ function getCards() {
             $("#velog-box").empty();
             velogCards.forEach(function (velogCards) {
                 makeVelogCard(velogCards);
-
             });
-
             $("#tistory-box").empty();
             tistoryCards.forEach(function (tistoryCards) {
                 makeTistoryCard(tistoryCards);
             });
-
+            console.log(velogCards)
+            console.log(tistoryCards)
         }
     })
 }
+
 
 function velClick() {
     if ($("#velog-box").is(":visible")) {
@@ -121,13 +121,14 @@ function showLocation(position) {   // 위치 정보 호출 성공시
     })
 }
 
+
 function showError(position) {
     // 실패 했을 때 처리
     alert("위치 정보를 얻을 수 없습니다.")
 }
 
 
-function makeVelogCard(cards){
+function makeVelogCard(cards) {
     let tempHtml = `<div class="card hotboxs">
                          <img class="card-img-top card-rows" height="200" src="${cards['pic']}" alt="Card image cap">
                         <div class="card-body">
@@ -141,8 +142,6 @@ function makeVelogCard(cards){
                         </div>
                     </div>`
     $("#velog-box").append(tempHtml);
-
-
 }
 
 
@@ -162,18 +161,21 @@ function makeTistoryCard(cards) {
     $("#tistory-box").append(tempHtml);
 }
 
-
-
+function enterkey() {
+    if (window.event.keyCode == 13) {
+        search();
+    }
+}
 
 //검색
 function search() {
     let txt = $("#searchtxt").val()
 
     $.ajax({
-        type:"PUT",
+        type: "PUT",
         url: "/search/" + txt,
-        data:{},
-        success: function (inc){
+        data: {},
+        success: function (inc) {
             console.log(inc)
         }
     })
@@ -186,10 +188,9 @@ function search() {
             console.log(response.name, txt);
             console.log(response.introduce);
             if (!response) {
-                 alert ("올바른 값을 넣어주세요")
-            }
-            else {
-                 let tempHtml = `<div class="card hotboxs">
+                alert("올바른 값을 넣어주세요")
+            } else {
+                let tempHtml = `<div class="card hotboxs">
                         <img class="card-img-top card-rows" height="200" src="${response['pic']}" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">${response['name']}</h5>
@@ -197,18 +198,18 @@ function search() {
                             <p class="card-text">${response['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="${response['url']}" class="btn btn-warning st">바로가기</a>
-                            <button type="button" data-toggle="modal" data-target="#${response['name']}"  class="btn btn-warning st">리뷰달기</button>
+                            <a href="/review/${response['id']}" onclick="showReviews()" class="btn btn-warning st">리뷰보기</a>
                         </div>
                         </div>
                     </div>
                     <button onclick="window.location.href = '/'" type="button" class="btn btn-primary ">메인으로</button>`
                 $("#flush").append(tempHtml);
-                 var countt = response.countt + 1;
+                var countt = response.countt + 1;
 
                 console.log(response.countt);
             }
-        }, error: function onError (){
-            alert ("올바른 값을 넣어주세요");
+        }, error: function onError() {
+            alert("올바른 값을 넣어주세요");
         }
     });
 }
@@ -217,7 +218,6 @@ function search() {
 /*
 로그인 관련 js코드
  */
-
 function toggle_sign_up() {
     $("#sign-up-box").toggleClass("is-hidden")
     $("#div-sign-in-or-up").toggleClass("is-hidden")
@@ -232,15 +232,18 @@ function toggle_sign_up() {
     $("#myModalSignupLabel").toggleClass("is-hidden")
 }
 
+
 function is_nickname(asValue) {
     var regExp = /^(?=.*[a-zA-Z])[-a-zA-Z0-9_.]{2,10}$/;
     return regExp.test(asValue);
 }
 
+
 function is_password(asValue) {
     var regExp = /^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z!@#$%^&*]{8,20}$/;
     return regExp.test(asValue);
 }
+
 
 function check_dup() {
     let username = $("#input-username").val()
@@ -275,6 +278,7 @@ function check_dup() {
     });
 }
 
+
 function sign_up() {
     let username = $("#input-username").val()
     let password = $("#input-password").val()
@@ -282,7 +286,6 @@ function sign_up() {
     let name = $("#name").val()
     let birth = $("#input4").val()
     let url = $("#blog-url").val()
-
 
     if ($("#help-id").hasClass("text-danger")) {
         alert("아이디를 다시 확인해주세요.")
@@ -332,6 +335,7 @@ function sign_up() {
 
 }
 
+
 function sign_in() {
     let username = $("#input-username").val()
     let password = $("#input-password").val()
@@ -370,10 +374,16 @@ function sign_in() {
     });
 }
 
+
 function sign_out() {
     $.removeCookie('mytoken', {path: '/'});
     alert('로그아웃!')
     window.location.href = "/"
+}
+
+
+function kakao_login() {
+    location.href = 'https://kauth.kakao.com/oauth/authorize?client_id=bc448c49046a3ad8a4f89959546084b3&response_type=code&redirect_uri=http://localhost:5000/oauth'
 }
 
 

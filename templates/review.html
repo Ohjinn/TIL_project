@@ -24,11 +24,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
             integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
             crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 
     <!-- 구글폰트 -->
     <link href="https://fonts.googleapis.com/css2?family=Poor+Story&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='Til.css') }}">
-{#    <script type="text/javascript" src="{{ url_for('static', filename='Til.js') }}"></script>#}
+    <script type="text/javascript" src="{{ url_for('static', filename='Til.js') }}"></script>
 
     <title>TIL 리뷰</title>
     <style type="text/css">
@@ -46,39 +47,59 @@
 
     <script>
         let id = '{{ id }}'
+        console.log(id)
         $(document).ready(function () {
             showReviews()
         });
 
         function showReviews() {
-            $.ajax({
-                type: "GET",
-                url: "/memo?txt=" + id,
-                data: {},
-                success: function (response) {
-                    let memos = response['all_memos'];
-                    for(i=0; i<memos.length; i++) {
-                        let temp_html = `<tr>
-                                               <th>${i+1}</th>
-                                               <td>${memos[i]['writer']}</td>
-                                               <td>${memos[i]['reviewcontent']}</td>
-                                               <td><button type="button" class="btn btn-danger">삭제</button></td>
-                                          </tr>`
-                        $('#reviewtable').append(temp_html)
-                    }
+            let token_writer = '{{ user_info.name }}'
+            console.log(token_writer)
+                {% if status %}
+                    $.ajax({
+                        type: "GET",
+                        url: "/reviews?txt=" + id,
+                        data: {},
+                        success: function (response) {
+                            let reviews = response['all_reviews'];
+                            for (i = 0; i < reviews.length; i++) {
+                                let writers = reviews[i]['writer'];
+                                console.log(token_writer, writers)
+                                if (token_writer == writers) {
+                                    let temp_html = `<tr>
+                                                           <th>${i + 1}</th>
+                                                           <td>${reviews[i]['writer']}</td>
+                                                           <td>${reviews[i]['reviewcontent']}</td>
+                                                           <td><button type="button" onclick="delete_review('${reviews[i]['writer']}', '${reviews[i]['reviewcontent']}')" class="btn btn-danger">삭제</button></td>
+                                                      </tr>`
+                                    $('#reviewtable').append(temp_html)
+                                }
+                                else {
+                                    let temp_html = `<tr>
+                                                           <th>${i + 1}</th>
+                                                           <td>${reviews[i]['writer']}</td>
+                                                           <td>${reviews[i]['reviewcontent']}</td>
+                                                      </tr>`
+                                    $('#reviewtable').append(temp_html)
+                                }
+                            }
 
-                }
-            })
+                        }
+                    })
+                {% else %}
+                    alert('볼 땐 보더라도 로그인정도는 괜찮잖아?')
+                    window.location.href = '/'
+                {% endif %}
         }
 
-        function postingArticle(id) {
-            let url = $("#post-url").val();
+        function review_post(id_receive) {
+            {#let writer = $("#post-writer").val();#}
             let comment = $("#post-comment").val();
-            console.log(id)
+            console.log(id_receive)
             $.ajax({
                 type: "POST",
-                url: "/article",
-                data: {id: id, title: url, content: comment},
+                url: "/reviews",
+                data: {id: id_receive, content: comment},
                 success: function (response) {
                     if (response["result"] == "success") {
                         alert("리뷰 저장 성공!");
@@ -90,22 +111,71 @@
             })
         }
 
+        function delete_review(writer_receive, content_receive) {
+            console.log(writer_receive, content_receive)
+
+            if (writer_receive == '{{ user_info.name }}') {
+                $.ajax({
+                    type: "DELETE",
+                    url: "/delete?txt=" + content_receive,
+                    data: {},
+                    success: function (response) {
+                        alert(response['msg']);
+                        window.location.reload();
+                    }
+                })
+            } else {
+                alert('너꺼 아니잖아');
+            }
+
+        }
+
+
     </script>
 
 </head>
 <body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
+        <a class="navbar-brand" href="#" onclick="window.location.href = '/'">TIL_project</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav">
+                {% if status %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/myPage/{{ user_info.id }}">마이페이지<span
+                                class="sr-only">(current)</span></a>
+                    </li>
+
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#" onclick="sign_out()">로그아웃<span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                {% else %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#" data-toggle="modal" data-target="#loginModalId">로그인<span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+</header>
 <div class="wrap">
     <div class="wrapp">
         <!-- 로고 이미지 -->
         <div class="banner" onclick="window.location.href = '/'">
         </div>
         <div>
-            <h5>이런 리뷰들이 있어요!</h5><br><br>
+            <h5>{{ user_info.name }}님!!! 이런 리뷰들이 있어요!</h5><br><br>
             <table class="table">
                 <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">작성자 추후에 ID로 변경</th>
+                    <th scope="col">작성자</th>
                     <th scope="col">한 줄 리뷰</th>
                     <th scope="col">삭제</th>
                 </tr>
@@ -117,18 +187,18 @@
             <br><br>
             <div id="post-box" class="form-post">
                 <div>
-                    <h5>한 줄 리뷰 작성하기</h5>
-                    <hr width = "100%" color = "blue" size = "3">
-                    <div class="form-group">
-                        <label for="post-url">작성자</label>
-                        <input id="post-url" class="form-control" placeholder="">
-                    </div>
+                    <h5>{{ user_info.name }}님의 한 줄 리뷰 작성하기</h5>
+                    <hr width="100%" color="blue" size="3">
+                    {#                    <div class="form-group">#}
+                    {#                        <label for="post-url">작성자</label>#}
+                    {#                        <input id="post-writer" class="form-control" placeholder="">#}
+                    {#                    </div>#}
                     <div class="form-group">
                         <label for="post-comment">한 줄 리뷰</label>
                         <textarea id="post-comment" class="form-control" rows="2"></textarea>
                     </div>
                     <input id="post-idx" class="form-control" placeholder="" hidden>
-                    <button type="button" class="btn btn-primary" onclick="postingArticle(id)">리뷰저장</button>
+                    <button type="button" class="btn btn-primary" onclick="review_post('{{ id }}')">리뷰저장</button>
                 </div>
             </div>
 
