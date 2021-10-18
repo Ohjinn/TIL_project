@@ -62,7 +62,20 @@ def index():
 
 @application.route('/review/<keyword>')
 def review(keyword):
-    return render_template('review.html', id=keyword)
+    token_receive = request.cookies.get('mytoken')
+    if token_receive is not None:
+        try:
+            payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+            user_info = db.userInfo.find_one({'id': payload['id']})
+            status = (user_info is not None)
+            return render_template('review.html', id=keyword, user_info=user_info, status=status)
+        except jwt.ExpiredSignatureError:
+            return render_template('review.html', msg="로그인 시간이 만료되었습니다.")
+        except jwt.exceptions.DecodeError:
+            return render_template('review.html', msg="로그인 정보가 존재하지 않습니다.")
+    else:
+        user_info = db.userInfo.find_one({'id': keyword})
+        return render_template('review.html', id=keyword, user_info=user_info)
 
 
 @application.route('/sign_in', methods=['POST'])
@@ -205,26 +218,39 @@ def order():
     return jsonify({"orderlist": orderlist})
 
 
-# 리뷰 띄우기
 @application.route('/reviews', methods=['GET'])
-def listing():
+def review_listing():
     id = request.args.get("txt")
-    reviews = list(db.tilreview.find({'owner': id}, {'_id': False}))
-    return jsonify({'all_reviews': reviews})
+    reviews = list(db.tilreview.find({'owner':id}, {'_id': False}))
+
+    return jsonify({'all_reviews':reviews})
+
 
 
 @application.route('/reviews', methods=['POST'])
 def review_post():
+    token_receive = request.cookies.get('mytoken')
+
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    user_info = db.userInfo.find_one({'id': payload['id']})
+
     id = request.form.get('id')
-    writer = request.form.get('writer')
-    review_content = request.form.get('content')
+    reviewcontent = request.form.get('content')
     db.tilreview.insert({
         'owner': id,
-        'writer': writer,
-        'review_content': review_content
+        'writer': user_info['name'],
+        'reviewcontent': reviewcontent
     })
     return {"result": "success"}
 
+# 리뷰 삭제
+@application.route('/delete', methods=['DELETE'])
+def delete_review():
+    content = request.args.get("txt")
+    db.tilreview.delete_one({'reviewcontent': content})
+
+    return jsonify({'msg': '삭제 완료!'})
+    
 
 # 카카오 로그인을 위한 인증 과정
 @application.route('/oauth', methods=['GET'])
