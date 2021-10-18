@@ -34,9 +34,6 @@ client = MongoClient(os.environ.get("MONGO_DB_PATH"))
 KAKAO_CODE = os.environ.get("KAKAO_CODE")
 db = client.dbTil
 
-"""
-주기적 실행을 위한 flask-apscheduler 라이브러리 (https://viniciuschiele.github.io/flask-apscheduler/rst/usage.html)
-"""
 scheduler = APScheduler()
 scheduler.init_app(application)
 scheduler.start()
@@ -45,7 +42,6 @@ scheduler.start()
 @scheduler.task('interval', id='autocraw', seconds=900, misfire_grace_time=900)
 def autocraw():
     bCrawling.titlecrawling()
-
 
 
 @scheduler.task('interval', id='autoPiccraw', seconds=3600, misfire_grace_time=900)
@@ -87,7 +83,6 @@ def review(keyword):
 
 @application.route('/sign_in', methods=['POST'])
 def sign_in():
-    # 로그인
     username_receive = request.form['username_give']
     password_receive = request.form['password_give']
 
@@ -97,11 +92,10 @@ def sign_in():
         user_info = db.userInfo.find_one({'id': username_receive}, {"_id": False})
         payload = {
             'id': username_receive,
-            'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # 로그인 24시간 유지
+            'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         return jsonify({'result': 'success', 'token': token, 'user_info' : user_info})
-    # 찾지 못하면
     else:
         return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
 
@@ -124,19 +118,18 @@ def kakao_sign_in(infos):
         payload = {
             'id': kakao_id,
             'name': kakao_nickname,
-            'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # 로그인 24시간 유지
+            'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         ksign_up = True
         return token, user_info, ksign_up
 
-    # 이미 회원이라면 토큰을 발급해서 로그인
     else:
         user_info = db.userInfo.find_one({'id': kakao_id}, {"_id": False})
         payload = {
             'id': kakao_id,
             'name': kakao_nickname,
-            'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # 로그인 24시간 유지
+            'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         ksign_up = False
@@ -165,7 +158,7 @@ def sign_up():
     payload = {
         'id': username_receive,
         'name': name_receive,
-        'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # 로그인 24시간 유지
+        'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
     return jsonify({'result': 'success', 'token': token})
@@ -194,8 +187,6 @@ def sorting():
     return jsonify({'velogcards': velogcards, 'tistorycards': tistorycards})
 
 
-# 검색
-# 일부러 if문에서 널값 조회 후 널값일시 쓰레기값으로 반환
 @application.route('/search', methods=['GET'])
 def search():
     txt = request.args.get("txt")
@@ -206,7 +197,6 @@ def search():
         return jsonify(userdb)
 
 
-# 카운트
 @application.route('/search/<txt>', methods=['PUT'])
 def addcount(txt):
     db.userInfo.update_one({'name': txt}, {'$inc': {'countt': 1}})
@@ -214,18 +204,16 @@ def addcount(txt):
     return (article)
 
 
-# countt 내림차순
 @application.route('/order', methods=['GET'])
 def order():
     orderlist = list(db.userInfo.find({}, {'_id': False}).sort([("countt", -1)]))
     return jsonify({"orderlist": orderlist})
 
 
-# 리뷰 띄우기
 @application.route('/reviews', methods=['GET'])
 def review_listing():
-    id = request.args.get("txt")
-    reviews = list(db.tilreview.find({'owner':id}, {'_id': False}))
+    userid = request.args.get("txt")
+    reviews = list(db.tilreview.find({'owner':userid}, {'_id': False}))
     return jsonify({'all_reviews':reviews})
 
 
@@ -235,18 +223,17 @@ def review_post():
     payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
     user_info = db.userInfo.find_one({'id': payload['id']})
 
-    id = request.form.get('id')
+    userid = request.form.get('id')
     reviewcontent = request.form.get('content')
 
     db.tilreview.insert({
-        'owner': id,
+        'owner': userid,
         'writer': user_info['name'],
         'reviewcontent': reviewcontent
     })
     return {"result": "success"}
 
 
-# 리뷰 삭제
 @application.route('/delete', methods=['DELETE'])
 def delete_review():
     content = request.args.get("txt")
@@ -255,16 +242,10 @@ def delete_review():
     return jsonify({'msg': '삭제 완료!'})
 
 
-# 카카오 로그인을 위한 인증 과정
 @application.route('/oauth', methods=['GET'])
 def oauthlogin():
-    # code는 index.html에 카카오 버튼 url을 보면 알 수 있습니다. 버튼 url에 만든사람 인증id, return uri이 명시되어 있습니다.
-    # 사용자 로그인에 성공하면 로그인 한 사람의 코드를 발급해줍니다.
     code = request.args.get("code")
 
-    # 그 코드를 이용해 서버에 토큰을 요청해야 합니다. 아래는 POST 요청을 위한 header와 body입니다.
-    client_id = KAKAO_CODE
-    # redirect_uri = 'http://localhost:5000/oauth'
     redirect_uri = 'https://ohjinn.shop/oauth'
     token_url = "https://kauth.kakao.com/oauth/token"
     token_headers = {
@@ -278,7 +259,6 @@ def oauthlogin():
     }
     response = requests.post(url=token_url, headers=token_headers, data=data)
     token = response.json()
-    # POST 요청에 성공하면 return value를 JSON 형식으로 파싱해서 담아줍니다.
 
     info_url = "https://kapi.kakao.com/v2/user/me"
     info_headers = {
