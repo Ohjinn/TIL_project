@@ -35,15 +35,15 @@ scheduler = APScheduler()
 scheduler.init_app(application)
 scheduler.start()
 
-
-@scheduler.task('interval', id='autocraw', seconds=30, misfire_grace_time=900)
-def autocraw():
-    bCrawling.titlecrawling()
-
-
-@scheduler.task('interval', id='autoPiccraw', seconds=60, misfire_grace_time=900)
-def autopiccraw():
-    bCrawling.getpic()
+#
+# @scheduler.task('interval', id='autocraw', seconds=900, misfire_grace_time=900)
+# def autocraw():
+#     bCrawling.titlecrawling()
+#
+#
+# @scheduler.task('interval', id='autoPiccraw', seconds=3600, misfire_grace_time=900)
+# def autopiccraw():
+#     bCrawling.getpic()
 
 
 @application.route('/')
