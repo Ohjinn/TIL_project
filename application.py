@@ -6,6 +6,7 @@ import jwt
 import os
 import hashlib
 import bCrawling
+import boto3
 from flask_cors import CORS
 from flask import Flask, render_template, jsonify, request, redirect, url_for, make_response
 from pymongo import MongoClient
@@ -16,7 +17,6 @@ from flask_restx import Resource
 from datetime import datetime, timedelta
 
 
-
 class Config:
     SCHEDULER_API_ENABLED = True
 
@@ -25,9 +25,13 @@ application = Flask(__name__)
 cors = CORS(application, resources={r"/*": {"origins": "*"}})
 application.config.from_object(Config())
 
-client = MongoClient(os.environ.get("MONGO_DB_PATH"))
-SECRET_KEY = os.environ.get("SECRET_KEY")
-KAKAO_CODE = os.environ.get("KAKAO_CODE")
+
+client = MongoClient("mongodb://localhost:27017/")
+SECRET_KEY = 'SPARTA'
+KAKAO_CODE = 'bc448c49046a3ad8a4f89959546084b3'
+# SECRET_KEY = os.environ.get("SECRET_KEY")
+# client = MongoClient(os.environ.get("MONGO_DB_PATH"))
+# KAKAO_CODE = os.environ.get("KAKAO_CODE")
 db = client.dbTil
 
 """
@@ -54,7 +58,7 @@ def index():
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        user_info = db.userInfo.find_one({'id': payload['id']})
+        user_info = db.userInfo.find_one({'id': payload['id']}, {"_id": False})
         status = (user_info is not None)
         return render_template('index.html', user_info=user_info, status=status)
     except jwt.ExpiredSignatureError:
@@ -65,7 +69,20 @@ def index():
 
 @application.route('/review/<keyword>')
 def review(keyword):
-    return render_template('review.html', id=keyword)
+    token_receive = request.cookies.get('mytoken')
+    if token_receive is not None:
+        try:
+            payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+            user_info = db.userInfo.find_one({'id': payload['id']})
+            status = (user_info is not None)
+            return render_template('review.html', id=keyword, user_info=user_info, status=status)
+        except jwt.ExpiredSignatureError:
+            return render_template('review.html', msg="로그인 시간이 만료되었습니다.")
+        except jwt.exceptions.DecodeError:
+            return render_template('review.html', msg="로그인 정보가 존재하지 않습니다.")
+    else:
+        user_info = db.userInfo.find_one({'id': keyword})
+        return render_template('review.html', id=keyword, user_info=user_info)
 
 
 @application.route('/sign_in', methods=['POST'])
@@ -75,14 +92,15 @@ def sign_in():
     password_receive = request.form['password_give']
 
     pw_hash = hashlib.sha256(password_receive.encode('utf-8')).hexdigest()
-    result = db.userInfo.find_one({'id': username_receive, 'pw': pw_hash})
+    result = db.userInfo.find_one({'id': username_receive, 'pw': pw_hash}, {"_id": False})
     if result is not None:
+        user_info = db.userInfo.find_one({'id': username_receive}, {"_id": False})
         payload = {
             'id': username_receive,
             'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # 로그인 24시간 유지
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-        return jsonify({'result': 'success', 'token': token})
+        return jsonify({'result': 'success', 'token': token, 'user_info' : user_info})
     # 찾지 못하면
     else:
         return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
@@ -101,17 +119,28 @@ def kakao_sign_in(infos):
             'name': kakao_nickname
         }
         db.userInfo.insert_one(doc)
+        user_info = db.userInfo.find_one({'id': kakao_id}, {"_id": False})
 
-    # 이미 회원이라면 토큰을 발급해서 로그인
-    if db.userInfo.find_one({'id': kakao_id, 'pw': kakao_password}) is not None:
-        user_info = db.userInfo.find_one({'id': kakao_id})
         payload = {
             'id': kakao_id,
-            'pw': kakao_password,
-            'name': kakao_nickname
+            'name': kakao_nickname,
+            'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # 로그인 24시간 유지
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-        return token, user_info
+        ksign_up = True
+        return token, user_info, ksign_up
+
+    # 이미 회원이라면 토큰을 발급해서 로그인
+    else:
+        user_info = db.userInfo.find_one({'id': kakao_id}, {"_id": False})
+        payload = {
+            'id': kakao_id,
+            'name': kakao_nickname,
+            'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # 로그인 24시간 유지
+        }
+        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+        ksign_up = False
+        return token, user_info, ksign_up
 
 
 @application.route('/sign_up/save', methods=['POST'])
@@ -133,7 +162,13 @@ def sign_up():
         "profile_info": ""
     }
     db.userInfo.insert_one(doc)
-    return jsonify({'result': 'success'})
+    payload = {
+        'id': username_receive,
+        'name': name_receive,
+        'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # 로그인 24시간 유지
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+    return jsonify({'result': 'success', 'token': token})
 
 
 @application.route('/sign_up/check_dup', methods=['POST'])
@@ -188,7 +223,7 @@ def order():
 
 # 리뷰 띄우기
 @application.route('/reviews', methods=['GET'])
-def listing():
+def review_listing():
     id = request.args.get("txt")
     reviews = list(db.tilreview.find({'owner':id}, {'_id': False}))
     return jsonify({'all_reviews':reviews})
@@ -196,16 +231,29 @@ def listing():
 
 @application.route('/reviews', methods=['POST'])
 def review_post():
+    token_receive = request.cookies.get('mytoken')
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    user_info = db.userInfo.find_one({'id': payload['id']})
+
     id = request.form.get('id')
-    writer = request.form.get('writer')
-    review_content = request.form.get('content')
+    reviewcontent = request.form.get('content')
+
     db.tilreview.insert({
         'owner': id,
-        'writer': writer,
-        'review_content': review_content
+        'writer': user_info['name'],
+        'reviewcontent': reviewcontent
     })
     return {"result": "success"}
-    
+
+
+# 리뷰 삭제
+@application.route('/delete', methods=['DELETE'])
+def delete_review():
+    content = request.args.get("txt")
+    db.tilreview.delete_one({'reviewcontent': content})
+
+    return jsonify({'msg': '삭제 완료!'})
+
 
 # 카카오 로그인을 위한 인증 과정
 @application.route('/oauth', methods=['GET'])
@@ -216,15 +264,15 @@ def oauthlogin():
 
     # 그 코드를 이용해 서버에 토큰을 요청해야 합니다. 아래는 POST 요청을 위한 header와 body입니다.
     client_id = KAKAO_CODE
-    redirect_uri = 'https://localhost:5000/oauth'
-    # redirect_uri = 'https://r-x.shop/oauth'
+    redirect_uri = 'http://localhost:5000/oauth'
+    # redirect_uri = 'https://ohjinn.shop/oauth'
     token_url = "https://kauth.kakao.com/oauth/token"
     token_headers = {
         'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
     }
     data = {
         'grant_type': 'authorization_code',
-        'client_id': client_id,
+        'client_id': KAKAO_CODE,
         'redirect_uri': redirect_uri,
         'code': code
     }
@@ -241,8 +289,12 @@ def oauthlogin():
     infos = info_response.json()
     if info_response.status_code == 200:
         token = kakao_sign_in(infos)
-        response = make_response(redirect(url_for("index")))
-        response.set_cookie(key='mytoken', value=token[0])
+        if token[2] is False:
+            response = make_response(redirect(url_for("index")))
+            response.set_cookie(key='mytoken', value=token[0])
+        else:
+            response = make_response(redirect(url_for("my_page", id=token[1]['id'])))
+            response.set_cookie(key='mytoken', value=token[0])
         return response
     else:
         return jsonify({'msg': '회원가입에 오류가 생겼습니다. 다시 시도해주세요'})
@@ -253,7 +305,7 @@ def my_page(id):
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        user_info = db.userInfo.find_one({"id": payload["id"]})
+        user_info = db.userInfo.find_one({"id": payload["id"]}, {"_id": False})
         status = (user_info != "")
         return render_template('myPage.html', user_info=user_info, status=status)
     except jwt.ExpiredSignatureError:
@@ -264,11 +316,10 @@ def my_page(id):
 
 @application.route('/update_profile', methods=['POST'])
 def update_profile():
-    print('update_profile API active!')
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        user_info = db.userInfo.find_one({"id": payload["id"]})
+        user_info = db.userInfo.find_one({"id": payload["id"]}, {"_id": False})
         status = (user_info != "")
 
         password_receive = request.form['password_give']

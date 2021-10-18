@@ -79,7 +79,8 @@
                     success: function (response) {
                         alert("프로필을 업데이트하였습니다!")
                         {#window.location.replace("/myPage")#}
-                        window.location.reload()
+                        window.location.href = "/"
+
                     }
                 });
             } else {
@@ -129,7 +130,8 @@
                     success: function (response) {
                         alert("프로필을 업데이트하였습니다!")
                         {#window.location.replace("/myPage")#}
-                        window.location.reload()
+                        window.location.href = "/"
+
                     }
                 });
             }
@@ -238,7 +240,8 @@
                     <div class="field-body">
                         <div class="field">
                             <div class="control">
-                                <input class="input is-rounded" type="date" name="birthdate" id="input-new-birth" value="{{ user_info.birth }}">
+                                <input class="input is-rounded" type="date" name="birthdate" id="input-new-birth"
+                                       value="{{ user_info.birth }}">
                             </div>
                         </div>
                     </div>
@@ -251,7 +254,8 @@
                     <div class="field-body">
                         <div class="field">
                             <div class="control">
-                                <input class="input input_profile" type="text" style="height: 250px; " id="input-new-profile" value="{{ user_info.profile_info }}">
+                                <input class="input input_profile" type="text" style="height: 250px; "
+                                       id="input-new-profile" value="{{ user_info.profile_info }}">
                             </div>
                         </div>
                     </div>

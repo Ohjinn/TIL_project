@@ -16,7 +16,6 @@ def getpic():
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 '
                       '(KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
-    print(users)
     for one in users:
         if 'https' in one['url']:
             try:
@@ -64,7 +63,6 @@ def titlecrawling():
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36'
                       ' (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
     }
-    print(users)
 
     newlist = []
     for x in users:

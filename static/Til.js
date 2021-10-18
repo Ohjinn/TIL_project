@@ -7,7 +7,6 @@ $(document).ready(function () {
         success: function (order) {
             $("#rank").empty();
             let Olist = order["orderlist"];
-            console.log(Olist)
             for (let i = 0; i < 3; i++) {
                 let tempHtml = ` <tr>
                       <td>${i + 1} . </td>
@@ -45,8 +44,8 @@ function getCards() {
         url: `/sorted`,
         data: {},
         success: function (response) {
-            velogCards = response['velogcards']
-            tistoryCards = response['tistorycards']
+            let velogCards = response['velogcards']
+            let tistoryCards = response['tistorycards']
             $("#velog-box").empty();
             velogCards.forEach(function (velogCards) {
                 makeVelogCard(velogCards);
@@ -55,8 +54,6 @@ function getCards() {
             tistoryCards.forEach(function (tistoryCards) {
                 makeTistoryCard(tistoryCards);
             });
-            console.log(velogCards)
-            console.log(tistoryCards)
         }
     })
 }
@@ -89,7 +86,6 @@ function showLocation(position) {   // 위치 정보 호출 성공시
         + "&appid=" + apiKey;
     let options = {method: 'GET'}
     $.ajax(weatherUrl, options).then((response) => {
-        console.log(response) // jSON 타입 위치 및 날씨 정보 로그 확인
         let icon = response.weather[0].icon
         let iconUrl = "http://openweathermap.org/img/wn/" + icon + ".png"
         let img = document.querySelector("#wicon")
@@ -116,7 +112,6 @@ function showLocation(position) {   // 위치 정보 호출 성공시
 
         $("#tempr").text(Math.round(parseFloat((response.main.temp - 273))) + '˚'); // 현재 온도
     }).catch((error) => {
-        console.log(error)
     })
 }
 
@@ -132,7 +127,7 @@ function makeVelogCard(cards) {
                          <img class="card-img-top card-rows" height="200" src="${cards['pic']}" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">${cards['name']}</h5>
-                            <p class="arrow_box">${cards['introduce']}</p>
+                            <p class="arrow_box">${cards['profile_info']}</p>
                             <p class="card-text">${cards['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="#" onclick="window.open('${cards['url']}', 'new')" class="btn btn-warning st">바로가기</a>
@@ -149,7 +144,7 @@ function makeTistoryCard(cards) {
                         <img class="card-img-top card-rows" height="200" src="${cards['pic']}" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">${cards['name']}</h5>
-                            <p class="arrow_box">${cards['introduce']}</p>
+                            <p class="arrow_box">${cards['profile_info']}</p>
                             <p class="card-text">${cards['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="#" onclick="window.open('${cards['url']}', 'new')" class="btn btn-warning st">바로가기</a>
@@ -160,6 +155,11 @@ function makeTistoryCard(cards) {
     $("#tistory-box").append(tempHtml);
 }
 
+function enterkey() {
+    if (window.event.keyCode == 13) {
+        search();
+    }
+}
 
 //검색
 function search() {
@@ -170,7 +170,6 @@ function search() {
         url: "/search/" + txt,
         data: {},
         success: function (inc) {
-            console.log(inc)
         }
     })
     $.ajax({
@@ -179,8 +178,6 @@ function search() {
         data: {},
         success: function (response) {
             $("#flush").empty();
-            console.log(response.name, txt);
-            console.log(response.introduce);
             if (!response) {
                 alert("올바른 값을 넣어주세요")
             } else {
@@ -188,19 +185,17 @@ function search() {
                         <img class="card-img-top card-rows" height="200" src="${response['pic']}" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">${response['name']}</h5>
-                             <p class="arrow_box">${response['introduce']}</p>
+                             <p class="arrow_box">${response['profile_info']}</p>
                             <p class="card-text">${response['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="${response['url']}" class="btn btn-warning st">바로가기</a>
-                            <button type="button" data-toggle="modal" data-target="#${response['name']}"  class="btn btn-warning st">리뷰달기</button>
+                            <a href="/review/${response['id']}" onclick="showReviews()" class="btn btn-warning st">리뷰보기</a>
                         </div>
                         </div>
                     </div>
                     <button onclick="window.location.href = '/'" type="button" class="btn btn-primary ">메인으로</button>`
                 $("#flush").append(tempHtml);
                 var countt = response.countt + 1;
-
-                console.log(response.countt);
             }
         }, error: function onError() {
             alert("올바른 값을 넣어주세요");
@@ -241,7 +236,6 @@ function is_password(asValue) {
 
 function check_dup() {
     let username = $("#input-username").val()
-    console.log(username)
     if (username == "") {
         $("#help-id").text("아이디를 입력했는지 확인해주세요.").addClass("text-danger")
         $("#input-username").focus()
@@ -322,11 +316,16 @@ function sign_up() {
             url_give: url
         },
         success: function (response) {
-            alert("회원가입을 축하드립니다!")
+            if (response['result'] == 'success') {
+                $.cookie('mytoken', response['token'], {path: '/'});
+                alert("회원가입을 축하드립니다!")
+                window.location.href = "/"
+            } else {
+                alert(response['msg'])
+            }
             window.location.replace("/")
         }
     });
-
 }
 
 
@@ -357,7 +356,6 @@ function sign_in() {
             password_give: password
         },
         success: function (response) {
-            console.log(response)
             if (response['result'] == 'success') {
                 $.cookie('mytoken', response['token'], {path: '/'});
                 window.location.href = "/"
@@ -366,6 +364,10 @@ function sign_in() {
             }
         }
     });
+}
+
+function find_password() {
+    alert('기능 추가 할 계획입니다!')
 }
 
 
@@ -377,6 +379,7 @@ function sign_out() {
 
 
 function kakao_login() {
+    // location.href = 'https://kauth.kakao.com/oauth/authorize?client_id=bc448c49046a3ad8a4f89959546084b3&response_type=code&redirect_uri=https://ohjinn.shop/oauth'
     location.href = 'https://kauth.kakao.com/oauth/authorize?client_id=bc448c49046a3ad8a4f89959546084b3&response_type=code&redirect_uri=http://localhost:5000/oauth'
 }
 
