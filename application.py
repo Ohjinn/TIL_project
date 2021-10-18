@@ -16,7 +16,7 @@ from flask_apscheduler import APScheduler
 from flask_restx import Resource
 from datetime import datetime, timedelta
 
-#배포중 왜안돼
+
 class Config:
     SCHEDULER_API_ENABLED = True
 
@@ -35,15 +35,15 @@ scheduler = APScheduler()
 scheduler.init_app(application)
 scheduler.start()
 
-#
-# @scheduler.task('interval', id='autocraw', seconds=900, misfire_grace_time=900)
-# def autocraw():
-#     bCrawling.titlecrawling()
-#
-#
-# @scheduler.task('interval', id='autoPiccraw', seconds=3600, misfire_grace_time=900)
-# def autopiccraw():
-#     bCrawling.getpic()
+
+@scheduler.task('interval', id='autocraw', seconds=900, misfire_grace_time=900)
+def autocraw():
+    bCrawling.titlecrawling()
+
+
+@scheduler.task('interval', id='autoPiccraw', seconds=3600, misfire_grace_time=900)
+def autopiccraw():
+    bCrawling.getpic()
 
 
 @application.route('/')
