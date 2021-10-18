@@ -161,6 +161,11 @@ function makeTistoryCard(cards) {
     $("#tistory-box").append(tempHtml);
 }
 
+function enterkey() {
+    if (window.event.keyCode == 13) {
+        search();
+    }
+}
 
 //검색
 function search() {
@@ -193,7 +198,7 @@ function search() {
                             <p class="card-text">${response['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="${response['url']}" class="btn btn-warning st">바로가기</a>
-                            <button type="button" data-toggle="modal" data-target="#${response['name']}"  class="btn btn-warning st">리뷰달기</button>
+                            <a href="/review/${response['id']}" onclick="showReviews()" class="btn btn-warning st">리뷰보기</a>
                         </div>
                         </div>
                     </div>

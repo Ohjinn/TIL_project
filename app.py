@@ -34,7 +34,7 @@ scheduler.init_app(app)
 scheduler.start()
 
 
-@scheduler.task('interval', id='autocraw', seconds=900, misfire_grace_time=900)
+@scheduler.task('interval', id='autocraw', seconds=30, misfire_grace_time=900)
 def autocraw():
     print('running')
     bCrawling.titlecrawling()
@@ -63,10 +63,21 @@ def index():
 
 @app.route('/review/<keyword>')
 def review(keyword):
-    print(keyword)
-    # onwer = db.tilreview.find_one({"idx":keyword}, {})
-
-    return render_template('review.html', id=keyword)
+    token_receive = request.cookies.get('mytoken')
+    if token_receive is not None:
+        try:
+            payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+            user_info = db.userInfo.find_one({'id': payload['id']})
+            status = (user_info is not None)
+            print(user_info)
+            return render_template('review.html', id=keyword, user_info=user_info, status=status)
+        except jwt.ExpiredSignatureError:
+            return render_template('review.html', msg="로그인 시간이 만료되었습니다.")
+        except jwt.exceptions.DecodeError:
+            return render_template('review.html', msg="로그인 정보가 존재하지 않습니다.")
+    else:
+        user_info = db.userInfo.find_one({'id': keyword})
+        return render_template('review.html', id=keyword, user_info=user_info)
 
 
 @app.route('/sign_in', methods=['POST'])
@@ -192,24 +203,40 @@ def order():
 
 # 리뷰 띄우기
 @app.route('/reviews', methods=['GET'])
-def listing():
+def review_listing():
     id = request.args.get("txt")
     print(id)
     reviews = list(db.tilreview.find({'owner':id}, {'_id': False}))
+
     return jsonify({'all_reviews':reviews})
+
 
 
 @app.route('/reviews', methods=['POST'])
 def review_post():
+    token_receive = request.cookies.get('mytoken')
+
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    user_info = db.userInfo.find_one({'id': payload['id']})
+
+    print(user_info)
+
     id = request.form.get('id')
-    writer = request.form.get('writer')
     reviewcontent = request.form.get('content')
     db.tilreview.insert({
         'owner': id,
-        'writer': writer,
+        'writer': user_info['name'],
         'reviewcontent': reviewcontent
     })
     return {"result": "success"}
+
+# 리뷰 삭제
+@app.route('/delete', methods=['DELETE'])
+def delete_review():
+    content = request.args.get("txt")
+    db.tilreview.delete_one({'reviewcontent': content})
+
+    return jsonify({'msg': '삭제 완료!'})
     
 
 # 카카오 로그인을 위한 인증 과정
