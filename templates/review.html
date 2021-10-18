@@ -47,7 +47,6 @@
 
     <script>
         let id = '{{ id }}'
-        console.log(id)
         $(document).ready(function () {
             showReviews()
         });
@@ -189,10 +188,6 @@
                 <div>
                     <h5>{{ user_info.name }}님의 한 줄 리뷰 작성하기</h5>
                     <hr width="100%" color="blue" size="3">
-                    {#                    <div class="form-group">#}
-                    {#                        <label for="post-url">작성자</label>#}
-                    {#                        <input id="post-writer" class="form-control" placeholder="">#}
-                    {#                    </div>#}
                     <div class="form-group">
                         <label for="post-comment">한 줄 리뷰</label>
                         <textarea id="post-comment" class="form-control" rows="2"></textarea>
