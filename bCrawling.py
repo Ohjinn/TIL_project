@@ -1,4 +1,14 @@
+import requests.exceptions
+import urllib3.exceptions
+
 import application
+import boto3
+import requests
+import os
+
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+BUCKET_NAME = os.environ.get("BUCKET_NAME")
 
 
 def getpic():
@@ -6,25 +16,45 @@ def getpic():
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 '
                       '(KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
-
+    print(users)
     for one in users:
-        name = one['name']
-        url = one['url']
-        data = application.requests.get(url, headers=headers)
-        soup = application.BeautifulSoup(data.text, 'html.parser')
-        image = soup.select_one('meta[property="og:image"]')['content']
+        if 'https' in one['url']:
+            try:
+                name = one['name']
+                url = one['url']
+                data = application.requests.get(url)
+                soup = application.BeautifulSoup(data.text, 'html.parser')
+                imgurl = soup.select_one('meta[property="og:image"]')['content']
 
-        imgUrl = image
+                extension = imgurl.split('.')[-1]
+                if extension != 'png' and 'jpg' and 'jpeg':
+                    extension = 'jpg'
 
-        # urlretrieve는 다운로드 함수
-        application.urllib.request.urlretrieve(imgUrl, "static/images/" + name + '.jpg')
+                # urlretrieve는 다운로드 함수
+                # application.urllib.request.urlretrieve(imgUrl, "static/images/" + name + '.jpg')
+                tempimg = application.urllib.request.urlopen(imgurl).read()
 
-        application.db.userInfo.update_one({'name': name}, {'$set': {'pic': '../static/images/' + name + '.jpg'}})
+                s3 = boto3.client('s3',
+                                  aws_access_key_id=AWS_ACCESS_KEY_ID,
+                                  aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+                                  )
+                s3.put_object(
+                    ACL='public-read',
+                    Bucket=BUCKET_NAME,
+                    Body=tempimg,
+                    Key='images/' + name + '.' + extension,
+                )
+
+                application.db.userInfo.update_one({'name': name},
+                                                   {'$set': {'pic': 'https://mysparta2.s3.ap-northeast-2.'
+                                                                    'amazonaws.com/images/' + name + '.' + extension}})
+            except urllib3.exceptions.LocationParseError:
+                print('invalid url')
+            except requests.exceptions.InvalidURL:
+                print('invalid url')
+        application.time.sleep(0.5)
 
 
-"""
-웹 크롤링을 위한 컨트롤러. 일정시간마다 실행되게 하는 구현 필
-"""
 
 
 def titlecrawling():
@@ -33,6 +63,7 @@ def titlecrawling():
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36'
                       ' (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
     }
+    print(users)
 
     newlist = []
     for x in users:
