@@ -34,17 +34,17 @@ def getpic():
                 # application.urllib.request.urlretrieve(imgUrl, "static/images/" + name + '.jpg')
                 tempimg = application.urllib.request.urlopen(imgurl).read()
 
-                # s3 = boto3.client('s3',
-                #                   aws_access_key_id=AWS_ACCESS_KEY_ID,
-                #                   aws_secret_access_key=AWS_SECRET_ACCESS_KEY
-                #                   )
-                # s3.put_object(
-                #     ACL='public-read',
-                #     Bucket=BUCKET_NAME,
-                #     Body=tempimg,
-                #     Key='images/' + name + '.' + extension,
-                #     ContentType=tempimg.extention
-                # )
+                s3 = boto3.client('s3',
+                                  aws_access_key_id=AWS_ACCESS_KEY_ID,
+                                  aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+                                  )
+                s3.put_object(
+                    ACL='public-read',
+                    Bucket=BUCKET_NAME,
+                    Body=tempimg,
+                    Key='images/' + name + '.' + extension,
+                    ContentType=tempimg.extention
+                )
 
                 application.db.userInfo.update_one({'name': name},
                                                    {'$set': {'pic': 'https://mysparta2.s3.ap-northeast-2.'
