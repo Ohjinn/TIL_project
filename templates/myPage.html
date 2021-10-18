@@ -45,62 +45,94 @@
     <style type="text/css">
     </style>
     <script>
+
+        $(document).ready(function () {
+            if (typeof ({{ user_info.id }}) == 'number') {
+                $("#input-password-box").empty();
+                $("#output-id").empty();
+                $("#output-id").append("카카오 로그인 사용자입니다.");
+            }
+        });
+
         {% if msg %}
             console.log('{{ msg }}')
             console.log('{{ user_info }}')
         {% endif %}
 
         function update_profile() {
-            let newPw = $("#input-new-password").val()
-            let newPwChk = $("#input-new-password-chk").val()
-            let newurl = $("#input-new-url").val()
-            let newbirth = $("#input-new-birth").val()
+            if (typeof ({{ user_info.id }}) == 'number') {
+                let newPw = 'kakao'
+                let newPwChk = 'kakao'
+                let newurl = $("#input-new-url").val()
+                let newbirth = $("#input-new-birth").val()
+                let newprofile = $("#input-new-profile").val()
 
-            console.log(newPw, newPwChk)
-
-            if (newPw == "" || newPwChk == "") {
-                alert("입력사항이 부족합니다. 모두 입력해주세요!")
-                return;
+                $.ajax({
+                    type: "POST",
+                    url: "/update_profile",
+                    data: {
+                        password_give: newPw,
+                        url_give: newurl,
+                        birth_give: newbirth,
+                        profile_give: newprofile
+                    },
+                    success: function (response) {
+                        alert("프로필을 업데이트하였습니다!")
+                        {#window.location.replace("/myPage")#}
+                        window.location.reload()
+                    }
+                });
             } else {
-                if (newPw == "") {
-                    $("#help-password").text("비밀번호를 입력해주세요.").addClass("is-danger")
-                    $("#input-new-password").focus()
-                    return;
-                } else if (!is_password(newPw)) {
-                    $("#help-password").text("비밀번호의 형식을 확인해주세요. 영문과 숫자 필수 포함, 특수문자(!@#$%^&*) 사용가능 8-20자").addClass("is-danger")
-                    $("#input-new-password").focus()
-                    return;
-                } else {
-                    $("#help-password").text("사용할 수 있는 비밀번호입니다.").removeClass("is-danger").addClass("is-success")
-                }
+                let newPw = $("#input-new-password").val()
+                let newPwChk = $("#input-new-password-chk").val()
+                let newurl = $("#input-new-url").val()
+                let newbirth = $("#input-new-birth").val()
+                let newprofile = $("#input-new-profile").val()
 
-                if (newPwChk == "") {
-                    $("#help-password2").text("비밀번호를 입력해주세요.").addClass("is-danger")
-                    $("#input-new-password-chk").focus()
-                    return;
-                } else if (newPwChk != newPw) {
-                    $("#help-password2").text("비밀번호가 일치하지 않습니다.").addClass("is-danger")
-                    $("#input-new-password-chk").focus()
+                if (newPw == "" && newPwChk == "") {
+                    alert("입력사항이 부족합니다. 모두 입력해주세요!")
                     return;
                 } else {
-                    $("#input-new-password-chk").text("비밀번호가 일치합니다.").removeClass("is-danger").addClass("is-success")
+                    if (newPw == "") {
+                        $("#help-password").text("비밀번호를 입력해주세요.").addClass("is-danger")
+                        $("#input-new-password").focus()
+                        return;
+                    } else if (!is_password(newPw)) {
+                        $("#help-password").text("비밀번호의 형식을 확인해주세요. 영문과 숫자 필수 포함, 특수문자(!@#$%^&*) 사용가능 8-20자").addClass("is-danger")
+                        $("#input-new-password").focus()
+                        return;
+                    } else {
+                        $("#help-password").text("사용할 수 있는 비밀번호입니다.").removeClass("is-danger").addClass("is-success")
+                    }
+
+                    if (newPwChk == "") {
+                        $("#help-password2").text("비밀번호를 입력해주세요.").addClass("is-danger")
+                        $("#input-new-password-chk").focus()
+                        return;
+                    } else if (newPwChk != newPw) {
+                        $("#help-password2").text("비밀번호가 일치하지 않습니다.").addClass("is-danger")
+                        $("#input-new-password-chk").focus()
+                        return;
+                    } else {
+                        $("#input-new-password-chk").text("비밀번호가 일치합니다.").removeClass("is-danger").addClass("is-success")
+                    }
                 }
+                $.ajax({
+                    type: "POST",
+                    url: "/update_profile",
+                    data: {
+                        password_give: newPw,
+                        url_give: newurl,
+                        birth_give: newbirth,
+                        profile_give: newprofile
+                    },
+                    success: function (response) {
+                        alert("프로필을 업데이트하였습니다!")
+                        {#window.location.replace("/myPage")#}
+                        window.location.reload()
+                    }
+                });
             }
-
-            $.ajax({
-                type: "POST",
-                url: "/update_profile",
-                data: {
-                    password_give: newPw,
-                    url_give: newurl,
-                    birth_give: newbirth
-                },
-                success: function (response) {
-                    alert("프로필을 업데이트하였습니다!")
-                    {#window.location.replace("/myPage")#}
-                    window.location.reload()
-                }
-            });
         }
     </script>
 
@@ -148,42 +180,44 @@
                     <div class="field-body">
                         <div class="field">
                             <div class="control">
-                                <p>
-                                    {{ user_info.id }}
-                                </p>
+                                <p id="output-id">{{ user_info.id }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="field is-horizontal">
-                    <div class="field-label is-normal">
-                        <label class="label" for="userpw">PW</label>
+
+                <div id="input-password-box">
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label" for="userpw">PW</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-rounded" id="input-new-password" type="password"
+                                           placeholder="새 비밀번호 입력">
+                                    <p id="help-password" class="help" style="font-size: 12px">영문과 숫자 조합의 8-20자의
+                                        비밀번호를 설정해주세요. 특수문자(!@#$%^&*)도 사용 가능합니다.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="field-body">
-                        <div class="field">
-                            <div class="control">
-                                <input class="input is-rounded" id="input-new-password" type="password"
-                                       placeholder="새 비밀번호 입력">
-                                <p id="help-password" class="help" style="font-size: 12px">영문과 숫자 조합의 8-20자의
-                                    비밀번호를 설정해주세요. 특수문자(!@#$%^&*)도 사용 가능합니다.</p>
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label" for="userpwchk">PW 확인</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-rounded" id="input-new-password-chk" type="password"
+                                           placeholder="새 비밀번호 확인">
+                                    <p id="help-password2" class="help">비밀번호를 한번 더 입력해주세요.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="field is-horizontal">
-                    <div class="field-label is-normal">
-                        <label class="label" for="userpwchk">PW 확인</label>
-                    </div>
-                    <div class="field-body">
-                        <div class="field">
-                            <div class="control">
-                                <input class="input is-rounded" id="input-new-password-chk" type="password"
-                                       placeholder="새 비밀번호 확인">
-                                <p id="help-password2" class="help">비밀번호를 한번 더 입력해주세요.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
                 <div class="field is-horizontal">
                     <div class="field-label is-normal">
                         <label class="label" for="userurl">Blog 주소</label>
@@ -204,12 +238,25 @@
                     <div class="field-body">
                         <div class="field">
                             <div class="control">
-                                <input class="input is-rounded" id="input-new-birth" type="text"
-                                       placeholder="생년월일 입력" value="{{ user_info.birth }}">
+                                <input class="input is-rounded" type="date" name="birthdate" id="input-new-birth" value="{{ user_info.birth }}">
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="userprofile">자기소개</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <input class="input_profile" type="text" id="input-new-profile" value="{{ user_info.profile_info }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <button class="button is-primary" onclick="update_profile()">수정 완료</button>
                 <button class="button is-primary" onclick="window.location.href = '/'">취소</button>
             </div>

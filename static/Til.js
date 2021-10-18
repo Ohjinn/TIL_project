@@ -160,11 +160,6 @@ function makeTistoryCard(cards) {
     $("#tistory-box").append(tempHtml);
 }
 
-function enterkey() {
-    if (window.event.keyCode == 13) {
-        search();
-    }
-}
 
 //검색
 function search() {
@@ -197,7 +192,7 @@ function search() {
                             <p class="card-text">${response['url']}</p>
                             <div class="d-flex justify-content-center">
                             <a href="${response['url']}" class="btn btn-warning st">바로가기</a>
-                            <a href="/review/${response['id']}" onclick="showReviews()" class="btn btn-warning st">리뷰보기</a>
+                            <button type="button" data-toggle="modal" data-target="#${response['name']}"  class="btn btn-warning st">리뷰달기</button>
                         </div>
                         </div>
                     </div>
@@ -327,13 +322,7 @@ function sign_up() {
             url_give: url
         },
         success: function (response) {
-            if (response['result'] == 'success') {
-                $.cookie('mytoken', response['token'], {path: '/'});
-                alert("회원가입을 축하드립니다!")
-                window.location.href = "/"
-            } else {
-                alert(response['msg'])
-            }
+            alert("회원가입을 축하드립니다!")
             window.location.replace("/")
         }
     });
@@ -379,9 +368,6 @@ function sign_in() {
     });
 }
 
-function find_password() {
-    alert('기능 추가 할 계획입니다!')
-}
 
 function sign_out() {
     $.removeCookie('mytoken', {path: '/'});
@@ -391,8 +377,7 @@ function sign_out() {
 
 
 function kakao_login() {
-    location.href = 'https://kauth.kakao.com/oauth/authorize?client_id=bc448c49046a3ad8a4f89959546084b3&response_type=code&redirect_uri=https://ohjinn.shop/oauth'
-    // location.href = 'https://kauth.kakao.com/oauth/authorize?client_id=bc448c49046a3ad8a4f89959546084b3&response_type=code&redirect_uri=http://localhost:5000/oauth'
+    location.href = 'https://kauth.kakao.com/oauth/authorize?client_id=bc448c49046a3ad8a4f89959546084b3&response_type=code&redirect_uri=http://localhost:5000/oauth'
 }
 
 

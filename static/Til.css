@@ -131,3 +131,6 @@ h5:hover + p.arrow_box {
   display: block;
 }
 
+.input_profile {
+    height: 250px;
+}
