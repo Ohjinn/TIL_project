@@ -2,7 +2,7 @@ name: TIL_project
 on:
   push:
     branches:
-      - hojin
+      - submain
 jobs:
   build:
     runs-on: ubuntu-latest
