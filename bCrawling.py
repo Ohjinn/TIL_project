@@ -43,6 +43,7 @@ def getpic():
                     Bucket=BUCKET_NAME,
                     Body=tempimg,
                     Key='images/' + name + '.' + extension,
+                    ContentType=tempimg.extention
                 )
 
                 application.db.userInfo.update_one({'name': name},

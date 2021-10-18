@@ -16,6 +16,7 @@ from flask_restx import Resource
 from datetime import datetime, timedelta
 
 
+
 class Config:
     SCHEDULER_API_ENABLED = True
 
