@@ -33,6 +33,8 @@ def getpic():
                 # application.db.userInfo.update_one({'name': name},
                 #                                    {'$set': {'pic': '../static/images/' + name + extension}})
 
+
+
                 tempimg = application.urllib.request.urlopen(imgurl).read()
 
                 s3 = boto3.client('s3',
