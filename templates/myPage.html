@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" href="/static/images/favicon.png">
+
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <!-- Font Awesome CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+            integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"
+            integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF"
+            crossorigin="anonymous"></script>
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+
+    <!-- 구글폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Poor+Story&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Til.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='Til.js') }}"></script>
+
+    <script defer src="https://use.fontawesome.com/releases/v5.15.2/js/all.js"
+            integrity="sha384-vuFJ2JiSdUpXLKGK+tDteQZBqNlMwAjhZ3TvPaDfN9QmbPb7Q8qUpbSNapQev3YF"
+            crossorigin="anonymous"></script>
+
+    <title>{{ user_info.name }}님의 마이페이지</title>
+    <style type="text/css">
+    </style>
+    <script>
+
+        $(document).ready(function () {
+            if (typeof ({{ user_info.id }}) == 'number') {
+                $("#input-password-box").empty();
+                $("#output-id").empty();
+                $("#output-id").append("카카오 로그인 사용자입니다.");
+            }
+        });
+
+        {% if msg %}
+            console.log('{{ msg }}')
+            console.log('{{ user_info }}')
+        {% endif %}
+
+        function update_profile() {
+            if (typeof ({{ user_info.id }}) == 'number') {
+                let newPw = 'kakao'
+                let newPwChk = 'kakao'
+                let newurl = $("#input-new-url").val()
+                let newbirth = $("#input-new-birth").val()
+                let newprofile = $("#input-new-profile").val()
+
+                $.ajax({
+                    type: "POST",
+                    url: "/update_profile",
+                    data: {
+                        password_give: newPw,
+                        url_give: newurl,
+                        birth_give: newbirth,
+                        profile_give: newprofile
+                    },
+                    success: function (response) {
+                        alert("프로필을 업데이트하였습니다!")
+                        {#window.location.replace("/myPage")#}
+                        window.location.href = "/"
+
+                    }
+                });
+            } else {
+                let newPw = $("#input-new-password").val()
+                let newPwChk = $("#input-new-password-chk").val()
+                let newurl = $("#input-new-url").val()
+                let newbirth = $("#input-new-birth").val()
+                let newprofile = $("#input-new-profile").val()
+
+                if (newPw == "" && newPwChk == "") {
+                    alert("입력사항이 부족합니다. 모두 입력해주세요!")
+                    return;
+                } else {
+                    if (newPw == "") {
+                        $("#help-password").text("비밀번호를 입력해주세요.").addClass("is-danger")
+                        $("#input-new-password").focus()
+                        return;
+                    } else if (!is_password(newPw)) {
+                        $("#help-password").text("비밀번호의 형식을 확인해주세요. 영문과 숫자 필수 포함, 특수문자(!@#$%^&*) 사용가능 8-20자").addClass("is-danger")
+                        $("#input-new-password").focus()
+                        return;
+                    } else {
+                        $("#help-password").text("사용할 수 있는 비밀번호입니다.").removeClass("is-danger").addClass("is-success")
+                    }
+
+                    if (newPwChk == "") {
+                        $("#help-password2").text("비밀번호를 입력해주세요.").addClass("is-danger")
+                        $("#input-new-password-chk").focus()
+                        return;
+                    } else if (newPwChk != newPw) {
+                        $("#help-password2").text("비밀번호가 일치하지 않습니다.").addClass("is-danger")
+                        $("#input-new-password-chk").focus()
+                        return;
+                    } else {
+                        $("#input-new-password-chk").text("비밀번호가 일치합니다.").removeClass("is-danger").addClass("is-success")
+                    }
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "/update_profile",
+                    data: {
+                        password_give: newPw,
+                        url_give: newurl,
+                        birth_give: newbirth,
+                        profile_give: newprofile
+                    },
+                    success: function (response) {
+                        alert("프로필을 업데이트하였습니다!")
+                        window.location.href = "/"
+
+                    }
+                });
+            }
+        }
+    </script>
+
+</head>
+
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
+        <a class="navbar-brand" href="#" onclick="window.location.href = '/'">TIL_project</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav">
+                {% if status %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/myPage/{{ user_info.id }}">마이페이지<span
+                                class="sr-only">(current)</span></a>
+                    </li>
+
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#" onclick="sign_out()">로그아웃<span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                {% else %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#" data-toggle="modal" data-target="#loginModalId">로그인<span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+</header>
+<div class="wrap">
+    <div class="wrapp">
+        <div class="section has-text-centered">
+            <h1 class="title">마이 페이지</h1>
+            <div class="container" style="width:60%">
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="userid">ID</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <p id="output-id">{{ user_info.id }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="input-password-box">
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label" for="userpw">PW</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-rounded" id="input-new-password" type="password"
+                                           placeholder="새 비밀번호 입력">
+                                    <p id="help-password" class="help" style="font-size: 12px">영문과 숫자 조합의 8-20자의
+                                        비밀번호를 설정해주세요. 특수문자(!@#$%^&*)도 사용 가능합니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label" for="userpwchk">PW 확인</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-rounded" id="input-new-password-chk" type="password"
+                                           placeholder="새 비밀번호 확인">
+                                    <p id="help-password2" class="help">비밀번호를 한번 더 입력해주세요.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="userurl">Blog 주소</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <input class="input is-rounded" id="input-new-url" type="text"
+                                       placeholder="블로그 주소 입력" value="{{ user_info.url }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="userbirth">생일</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <input class="input is-rounded" type="date" name="birthdate" id="input-new-birth"
+                                       value="{{ user_info.birth }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="userprofile">자기소개</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <div class="control">
+                                <input class="input input_profile" type="text" style="height: 250px; "
+                                       id="input-new-profile" value="{{ user_info.profile_info }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="button is-primary" onclick="update_profile()">수정 완료</button>
+                <button class="button is-primary" onclick="window.location.href = '/'">취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

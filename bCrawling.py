@@ -1,31 +1,67 @@
-import app
+import requests.exceptions
+import urllib3.exceptions
 
-def getPic():
-    users = list(app.db.userInfo.find({}, {'_id': False}))
+import application
+import boto3
+import requests
+import os
+
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+BUCKET_NAME = os.environ.get("BUCKET_NAME")
+
+
+def getpic():
+    users = list(application.db.userInfo.find({'url': {'$exists': True}}, {'_id': False}))
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
-
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 '
+                      '(KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
     for one in users:
-        name = one['name']
-        url = one['url']
-        data = app.requests.get(url, headers=headers)
-        soup = app.BeautifulSoup(data.text, 'html.parser')
-        image = soup.select_one('meta[property="og:image"]')['content']
+        if 'https' in one['url']:
+            try:
+                name = one['name']
+                url = one['url']
+                data = application.requests.get(url)
+                soup = application.BeautifulSoup(data.text, 'html.parser')
+                imgurl = soup.select_one('meta[property="og:image"]')['content']
 
-        imgUrl = image
+                extension = imgurl.split('.')[-1]
+                if extension != 'png' and 'jpg' and 'jpeg':
+                    extension = 'jpg'
 
-        # urlretrieve는 다운로드 함수
-        app.urllib.request.urlretrieve(imgUrl, "static/images/" + name + '.jpg')
+                # urlretrieve는 다운로드 함수
+                # application.urllib.request.urlretrieve(imgUrl, "static/images/" + name + '.jpg')
+                tempimg = application.urllib.request.urlopen(imgurl).read()
 
-        app.db.userInfo.update_one({'name': name}, {'$set': {'pic': '../static/images/' + name + '.jpg'}})
+                s3 = boto3.client('s3',
+                                  aws_access_key_id=AWS_ACCESS_KEY_ID,
+                                  aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+                                  )
+                s3.put_object(
+                    ACL='public-read',
+                    Bucket=BUCKET_NAME,
+                    Body=tempimg,
+                    Key='images/' + name + '.' + extension,
+                    ContentType=tempimg.extention
+                )
 
-"""
-웹 크롤링을 위한 컨트롤러. 일정시간마다 실행되게 하는 구현 필
-"""
-def titleCrawling():
-    users = list(app.db.userInfo.find({}, {'_id': False}))
+                application.db.userInfo.update_one({'name': name},
+                                                   {'$set': {'pic': 'https://mysparta2.s3.ap-northeast-2.'
+                                                                    'amazonaws.com/images/' + name + '.' + extension}})
+            except urllib3.exceptions.LocationParseError:
+                print('invalid url')
+            except requests.exceptions.InvalidURL:
+                print('invalid url')
+        application.time.sleep(0.5)
+
+
+
+
+def titlecrawling():
+    users = list(application.db.userInfo.find({'url':{'$exists': True}}, {'_id': False}))
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36'
+                      ' (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
     }
 
     newlist = []
@@ -34,10 +70,10 @@ def titleCrawling():
         tempurl = x['url']
 
         # 벨로그 크롤링
-        if "velog" in tempurl:
-            response = app.requests.get(tempurl)
+        if "velog.io" in tempurl:
+            response = application.requests.get(tempurl)
             html = response.text
-            soup = app.BeautifulSoup(html, 'html.parser')
+            soup = application.BeautifulSoup(html, 'html.parser')
             title = soup.select_one('div.sc-emmjRN')
             if title is None:
                 title = soup.select_one('div.sc-ktHwxA')
@@ -55,61 +91,61 @@ def titleCrawling():
                 newlist.append({'name': tempname, 'title': title.text})
 
         # 티스토리 크롤링
-        if "tistory" in tempurl:
-            response = app.requests.get(tempurl)
+        if "tistory.com" in tempurl:
+            response = application.requests.get(tempurl)
             html = response.text
-            soup = app.BeautifulSoup(html, 'html.parser')
+            soup = application.BeautifulSoup(html, 'html.parser')
             title = soup.select_one('ul.list_horizontal')
-            if app.sys.getsizeof(title) < 100:
+            if application.sys.getsizeof(title) < 100:
                 title = soup.select('ul.list_category > li')
                 for titles in title:
                     detail_title = titles.select_one('div.info > strong.name')
                     newlist.append({'name': tempname, 'title': detail_title.text})
 
-            if app.sys.getsizeof(title) < 100:
+            if application.sys.getsizeof(title) < 100:
                 title = soup.select('div.box-article > article')
                 for titles in title:
                     detail_title = titles.select_one('a.link-article > strong')
                     newlist.append({'name': tempname, 'title': detail_title.text})
 
-            if app.sys.getsizeof(title) < 100:
+            if application.sys.getsizeof(title) < 100:
                 title = soup.select('div.article_skin > div.list_content')
                 for titles in title:
                     detail_title = titles.select_one('a.link_post > strong')
                     newlist.append({'name': tempname, 'title': detail_title.text})
 
-            if app.sys.getsizeof(title) < 100:
+            if application.sys.getsizeof(title) < 100:
                 title = soup.select('div.inner > ul > li')
                 for titles in title:
                     detail_title = titles.select_one('span.title')
                     newlist.append({'name': tempname, 'title': detail_title.text})
 
-            if app.sys.getsizeof(title) < 100:
+            if application.sys.getsizeof(title) < 100:
                 title = soup.select('div.inner > div.post-item')
                 for titles in title:
                     detail_title = titles.select_one('span.title')
                     newlist.append({'name': tempname, 'title': detail_title.text})
 
-            if app.sys.getsizeof(title) < 100:
+            if application.sys.getsizeof(title) < 100:
                 title = soup.select('article.entry')
                 for titles in title:
                     detail_title = titles.select_one('div.list-body')
                     detail_title = detail_title.select_one('h3')
                     newlist.append({'name': tempname, 'title': detail_title.text})
 
-            if app.sys.getsizeof(title) < 100:
+            if application.sys.getsizeof(title) < 100:
                 title = soup.select('div.area-common > article.article-type-common')
                 for titles in title:
                     detail_title = titles.select_one('strong.title')
                     newlist.append({'name': tempname, 'title': detail_title.text})
 
-            if app.sys.getsizeof(title) < 100:
+            if application.sys.getsizeof(title) < 100:
                 title = soup.select('div.wrap_content > div.content_list')
                 for titles in title:
                     detail_title = titles.select_one('strong.txt_title')
                     newlist.append({'name': tempname, 'title': detail_title.text})
 
-            if app.sys.getsizeof(title) < 70:
+            if application.sys.getsizeof(title) < 70:
                 title = title.select('li')
                 for titles in title:
                     detail_title = titles.select_one('div.box_contents > a')
@@ -117,10 +153,10 @@ def titleCrawling():
 
 
         # 크롤링 페이지를 켜기 위한 딜레이
-        app.time.sleep(0.5)
+        application.time.sleep(0.5)
 
     #최근에 저장한 타이틀 목록을 불러온다
-    dbtitlelist = list(app.db.recentTitle.find({}, {'_id': False}))
+    dbtitlelist = list(application.db.recentTitle.find({}, {'_id': False}))
     # dbuserstack = list(db.userStack.find({}, {'_id':False}))
 
     #만약 DB에 없는 제목 생긴 사람이 있으면 이름을 newstack에 저장
@@ -130,7 +166,7 @@ def titleCrawling():
         temptitle = x['title']
         if x not in dbtitlelist:
             #임의의 제목 리스트가 DB리스트에 없으면 db리스트에 넣어주면서 최근에 변경이 감지된 사람을 스택에 저장한다.
-            app.db.recentTitle.insert_one(x)
+            application.db.recentTitle.insert_one(x)
             if tempname not in newstack:
                 print('now inserting name into stack')
                 newstack.append(tempname)
@@ -138,5 +174,5 @@ def titleCrawling():
     #userStack에서 최근 글이 쓰여진 사람을 목록에서 없애고 뒤에 붙임.
     for x in newstack:
         tempname = x
-        app.db.userStack.delete_one({'name' : tempname})
-        app.db.userStack.insert_one({'name' : tempname})
+        application.db.userStack.delete_one({'name' : tempname})
+        application.db.userStack.insert_one({'name' : tempname})

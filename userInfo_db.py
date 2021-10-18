@@ -1,18 +1,19 @@
 from pymongo import MongoClient
 
-client = MongoClient('mongodb://test:test@localhost', 27017)
-db = client.dbTil
 
+client = MongoClient("mongodb://localhost:27017/")
+# client = MongoClient('mongodb://test:test@localhost', 27017)
+db = client.dbTil
 db.userInfo.drop()
 
 userInfo = [
 
     {"name": "이한솔", "url": "https://just-it.tistory.com/", "pic": ""},
-    {"name": "권나연", "url": "https://velog.io/@hellonayeon", "pic": ""},
+    {"id": 123, "name": "권나연", "url": "https://velog.io/@hellonayeon", "pic": ""},
     {"name": "김다은", "url": "https://danykde0til.tistory.com/", "pic": ""},
     {"name": "양찬홍", "url": "https://l0u0l.tistory.com/", "pic": ""},
     {"name": "천소연", "url": "https://lu-delight.tistory.com/", "pic": ""},
-    {"name": "김성훈", "url": "https://velog.io/@shkim1199", "pic": ""},
+    {"id": 234, "name": "김성훈", "url": "https://velog.io/@shkim1199", "pic": ""},
     {"name": "박형민", "url": "https://thalals.tistory.com/", "pic": ""},
     {"name": "서성혁", "url": "https://velog.io/@tjtjdgur0", "pic": ""},
     {"name": "김은아", "url": "https://bcoding-lab.tistory.com/", "pic": ""},
@@ -38,6 +39,5 @@ userInfo = [
     {"name": "김혜린", "url": "https://khr5830.tistory.com/", "pic": ""},
 
 ]
-
 
 db.userInfo.insert_many(userInfo)
