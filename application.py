@@ -25,8 +25,6 @@ application = Flask(__name__)
 cors = CORS(application, resources={r"/*": {"origins": "*"}})
 application.config.from_object(Config())
 
-# client = MongoClient("mongodb://localhost:27017/")
-# client = MongoClient('mongodb://test:test@localhost', 27017)
 client = MongoClient(os.environ.get("MONGO_DB_PATH"))
 SECRET_KEY = os.environ.get("SECRET_KEY")
 KAKAO_CODE = os.environ.get("KAKAO_CODE")
