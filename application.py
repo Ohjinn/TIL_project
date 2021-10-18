@@ -26,12 +26,12 @@ cors = CORS(application, resources={r"/*": {"origins": "*"}})
 application.config.from_object(Config())
 
 
-client = MongoClient("mongodb://localhost:27017/")
-SECRET_KEY = 'SPARTA'
-KAKAO_CODE = 'bc448c49046a3ad8a4f89959546084b3'
-# SECRET_KEY = os.environ.get("SECRET_KEY")
-# client = MongoClient(os.environ.get("MONGO_DB_PATH"))
-# KAKAO_CODE = os.environ.get("KAKAO_CODE")
+# client = MongoClient("mongodb://localhost:27017/")
+# SECRET_KEY = 'SPARTA'
+# KAKAO_CODE = 'bc448c49046a3ad8a4f89959546084b3'
+SECRET_KEY = os.environ.get("SECRET_KEY")
+client = MongoClient(os.environ.get("MONGO_DB_PATH"))
+KAKAO_CODE = os.environ.get("KAKAO_CODE")
 db = client.dbTil
 
 """
@@ -264,8 +264,8 @@ def oauthlogin():
 
     # 그 코드를 이용해 서버에 토큰을 요청해야 합니다. 아래는 POST 요청을 위한 header와 body입니다.
     client_id = KAKAO_CODE
-    redirect_uri = 'http://localhost:5000/oauth'
-    # redirect_uri = 'https://ohjinn.shop/oauth'
+    # redirect_uri = 'http://localhost:5000/oauth'
+    redirect_uri = 'https://ohjinn.shop/oauth'
     token_url = "https://kauth.kakao.com/oauth/token"
     token_headers = {
         'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
