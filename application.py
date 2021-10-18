@@ -16,7 +16,7 @@ from flask_apscheduler import APScheduler
 from flask_restx import Resource
 from datetime import datetime, timedelta
 
-
+#푸시용
 class Config:
     SCHEDULER_API_ENABLED = True
 
