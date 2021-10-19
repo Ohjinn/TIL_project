@@ -2,7 +2,6 @@ import requests.exceptions
 import urllib3.exceptions
 
 import application
-import boto3
 import requests
 import os
 
