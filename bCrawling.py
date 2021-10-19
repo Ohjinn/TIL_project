@@ -54,6 +54,7 @@ def getpic():
                                                    'amazonaws.com/images/' + name + '.' + extension}})
 
 
+
             except urllib3.exceptions.LocationParseError:
                 print('invalid url')
             except requests.exceptions.InvalidURL:
