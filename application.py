@@ -27,9 +27,9 @@ application.config.from_object(Config())
 
 # 배포중
 # client = MongoClient("mongodb://localhost:27017/")
-# SECRET_KEY = 'SPARTA'
+SECRET_KEY = 'SPARTA'
 # KAKAO_CODE = 'bc448c49046a3ad8a4f89959546084b3'
-SECRET_KEY = os.environ.get("SECRET_KEY")
+# SECRET_KEY = os.environ.get("SECRET_KEY")
 client = MongoClient(os.environ.get("MONGO_DB_PATH"))
 KAKAO_CODE = os.environ.get("KAKAO_CODE")
 db = client.dbTil
