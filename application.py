@@ -25,7 +25,7 @@ application = Flask(__name__)
 cors = CORS(application, resources={r"/*": {"origins": "*"}})
 application.config.from_object(Config())
 
-# 배포중
+
 # client = MongoClient("mongodb://localhost:27017/")
 SECRET_KEY = 'SPARTA'
 # KAKAO_CODE = 'bc448c49046a3ad8a4f89959546084b3'
