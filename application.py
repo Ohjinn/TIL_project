@@ -6,7 +6,6 @@ import jwt
 import os
 import hashlib
 import bCrawling
-import boto3
 from flask_cors import CORS
 from flask import Flask, render_template, jsonify, request, redirect, url_for, make_response
 from pymongo import MongoClient
